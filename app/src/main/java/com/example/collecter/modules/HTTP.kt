@@ -2,6 +2,7 @@ package com.example.collecter.modules
 
 import android.util.Log
 import io.ktor.client.HttpClient
+import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
 import io.ktor.client.statement.content
@@ -24,7 +25,7 @@ class HTTP {
 
     suspend fun check() {
         val response = client.get("${mainUrl}/up")
-        Log.d("HTTP", "Response: ${response.status.value.toString()}") // Example usage
+        Log.d("HTTP", "Response: ${response.body<String>().toString()}")
         Log.d("TAG", "?")
     }
 }
