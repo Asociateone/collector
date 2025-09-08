@@ -3,6 +3,7 @@ package com.example.collecter.services
 import android.util.Log
 import com.example.collecter.dataObjects.ApiResource
 import com.example.collecter.dataObjects.User
+import com.example.collecter.enums.DataStoreKeys
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -23,7 +24,7 @@ class HTTP (val preferenceData: PreferenceDataStore) {
             json(Json {
                 prettyPrint = true
                 isLenient = true
-                ignoreUnknownKeys = true // Helpful for API changes
+                ignoreUnknownKeys = true
             })
         }
     }
@@ -40,10 +41,8 @@ class HTTP (val preferenceData: PreferenceDataStore) {
             setBody(mapOf("email" to email, "password" to password))
         }
 
-
         val data = response.body<ApiResource<User>>()
 
-        Log.v("INFO", data.data.toString())
-//        preferenceData.update(DataStoreKeys.API_KEY, data.data.token)
+        preferenceData.update(DataStoreKeys.API_KEY, data.data.token)
     }
 }
