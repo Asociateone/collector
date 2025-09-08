@@ -1,23 +1,18 @@
 package com.example.collecter.repositories
 
-import android.util.Log
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.collecter.modules.HTTP
-import kotlinx.coroutines.runBlocking
+import com.example.collecter.services.HTTP
 
 interface AuthRepository
 {
-    suspend fun signIn(test: String): Unit
+    suspend fun signIn(email: String, password: String): Unit
 }
 class AuthRepositoryImp(val http: HTTP): AuthRepository
 {
     /**
-     * @param test
+     * @param email
      */
-    override suspend fun signIn(test: String): Unit
+    override suspend fun signIn(email: String, password: String): Unit
     {
-        http.check()
-
-        Log.d("test", test)
+        http.signIn(email, password)
     }
 }

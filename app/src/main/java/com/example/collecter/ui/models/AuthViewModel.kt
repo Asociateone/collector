@@ -1,10 +1,9 @@
 package com.example.collecter.ui.models
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.collecter.repositories.AuthRepository
-import com.example.collecter.ui.dataObjects.AuthObject
+import com.example.collecter.dataObjects.AuthObject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -36,7 +35,7 @@ class AuthViewModel(private val repository: AuthRepository): ViewModel() {
     fun login(): Unit
     {
         viewModelScope.launch {
-            repository.signIn(_uiState.value.email)
+            repository.signIn(_uiState.value.email, _uiState.value.password)
         }
     }
 }
