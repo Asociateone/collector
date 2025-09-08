@@ -29,11 +29,18 @@ class HTTP (val preferenceData: PreferenceDataStore) {
         }
     }
 
+    /**
+     * check if everything is up
+     */
     suspend fun check() {
         val response = client.get("${mainUrl}/up")
         Log.d("HTTP", "Response: ${response.body<String>().toString()}")
     }
 
+    /**
+     * @param email
+     * @param password
+     */
     suspend fun signIn(email: String, password: String) {
         val response = client.post("${mainUrl}/login") {
             header("Content-Type", "application/json")

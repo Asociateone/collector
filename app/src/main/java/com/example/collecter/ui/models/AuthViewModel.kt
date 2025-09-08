@@ -2,13 +2,15 @@ package com.example.collecter.ui.models
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.collecter.repositories.AuthRepository
 import com.example.collecter.dataObjects.AuthObject
+import com.example.collecter.repositories.AuthRepository
+import com.example.collecter.services.PreferenceDataStore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
-class AuthViewModel(private val repository: AuthRepository): ViewModel() {
+class AuthViewModel(private val repository: AuthRepository, val dataStore: PreferenceDataStore): ViewModel() {
 
     private val _uiState = MutableStateFlow(AuthObject("", ""))
     val uiState: StateFlow<AuthObject> = _uiState
@@ -37,5 +39,12 @@ class AuthViewModel(private val repository: AuthRepository): ViewModel() {
         viewModelScope.launch {
             repository.signIn(_uiState.value.email, _uiState.value.password)
         }
+    }
+
+    /**
+     * Get Token
+     */
+    suspend fun getToken(): String? {
+        return dataStore.apiKey.first()
     }
 }
