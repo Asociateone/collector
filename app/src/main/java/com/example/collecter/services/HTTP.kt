@@ -3,7 +3,7 @@ package com.example.collecter.services
 import android.util.Log
 import com.example.collecter.dataObjects.ApiResource
 import com.example.collecter.dataObjects.User
-import com.example.collecter.enums.DataStoreKeys
+import com.example.collecter.enums.UiState
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -41,15 +41,25 @@ class HTTP (val preferenceData: PreferenceDataStore) {
      * @param email
      * @param password
      */
-    suspend fun signIn(email: String, password: String) {
+    suspend fun signIn(email: String, password: String): UiState<Nothing> {
         val response = client.post("${mainUrl}/login") {
             header("Content-Type", "application/json")
             header("Accept", "application/json")
             setBody(mapOf("email" to email, "password" to password))
         }
 
-        val data = response.body<ApiResource<User>>()
+        if(response.status.value >= 200 && response.status.value <= 299) {
+            val data = response.body<ApiResource<User>>()
+//            preferenceData.update(DataStoreKeys.API_KEY, data.data.token)
+        }
 
-        preferenceData.update(DataStoreKeys.API_KEY, data.data.token)
+        Log.d("HTTP", "Response")
+        return UiState.Success(null)
+//
+//        if (response.status.value >= 400) {
+//            return UiState.Error
+//        }
+//
+//        return UiState.Success(null)
     }
 }

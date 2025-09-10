@@ -1,18 +1,19 @@
 package com.example.collecter.repositories
 
+import com.example.collecter.enums.UiState
 import com.example.collecter.services.HTTP
 
 interface AuthRepository
 {
-    suspend fun signIn(email: String, password: String): Unit
+    suspend fun signIn(email: String, password: String): UiState<Nothing>
 }
 class AuthRepositoryImp(val http: HTTP): AuthRepository
 {
     /**
      * @param email
      */
-    override suspend fun signIn(email: String, password: String): Unit
+    override suspend fun signIn(email: String, password: String): UiState<Nothing>
     {
-        http.signIn(email, password)
+        return http.signIn(email, password)
     }
 }

@@ -29,20 +29,20 @@ class MainActivity : ComponentActivity() {
             CollecterTheme(dynamicColor = false) {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Column(modifier = Modifier.padding(innerPadding)) {
-                        val authViewModel: AuthViewModel = koinViewModel()
-                        var token by remember { mutableStateOf<String?>(null) }
-
-                        LaunchedEffect(key1 = authViewModel) {
-                            token = authViewModel.getToken()
-                        }
-
-                        if (token === null) {
+//                        val authViewModel: AuthViewModel = koinViewModel()
+//                        var token by remember { mutableStateOf<String?>(null) }
+//
+//                        LaunchedEffect(key1 = authViewModel) {
+//                            token = authViewModel.getToken()
+//                        }
+//
+//                        if (token === null) {
                             SignInScreen(
                                 modifier = Modifier.fillMaxSize().padding(16.dp),
                             )
-                        } else {
-                            Text(text = "Token: $token") // Display the token (optional)
-                        }
+//                        } else {
+//                            Text(text = "Token: $token") // Display the token (optional)
+//                        }
                     }
                 }
             }

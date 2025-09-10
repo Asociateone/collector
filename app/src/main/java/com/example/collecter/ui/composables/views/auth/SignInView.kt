@@ -19,7 +19,8 @@ fun SignInView(
     modifier: Modifier, email: String = "", password: String = "",
     onEmailChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
-    signIn: () -> Unit
+    signIn: () -> Unit,
+    isLoading: Boolean = false
 ) {
     Column(
         modifier = modifier,
