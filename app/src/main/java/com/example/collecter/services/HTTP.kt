@@ -50,6 +50,7 @@ class HTTP (val preferenceData: PreferenceDataStore) {
 
         if(response.status.value >= 200 && response.status.value <= 299) {
             val data = response.body<ApiResource<User>>()
+            Log.d("HTTP", "Response: ${data.data.token}")
 //            preferenceData.update(DataStoreKeys.API_KEY, data.data.token)
         }
 
