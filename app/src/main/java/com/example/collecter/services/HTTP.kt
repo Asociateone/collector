@@ -1,16 +1,20 @@
 package com.example.collecter.services
 
 import android.util.Log
+import com.example.collecter.dataObjects.ApiFailedResponse
 import com.example.collecter.dataObjects.ApiResource
 import com.example.collecter.dataObjects.User
+import com.example.collecter.enums.DataStoreKeys
 import com.example.collecter.enums.UiState
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.utils.io.InternalAPI
 import kotlinx.serialization.json.Json
@@ -26,6 +30,11 @@ class HTTP (val preferenceData: PreferenceDataStore) {
                 isLenient = true
                 ignoreUnknownKeys = true
             })
+        }
+        install(HttpTimeout) {
+            requestTimeoutMillis = 15000L
+            connectTimeoutMillis = 15000L
+            socketTimeoutMillis = 15000L
         }
     }
 
@@ -48,19 +57,15 @@ class HTTP (val preferenceData: PreferenceDataStore) {
             setBody(mapOf("email" to email, "password" to password))
         }
 
-        if(response.status.value >= 200 && response.status.value <= 299) {
-            val data = response.body<ApiResource<User>>()
-            Log.d("HTTP", "Response: ${data.data.token}")
-//            preferenceData.update(DataStoreKeys.API_KEY, data.data.token)
+        if (response.status.value >= 400) {
+            return response.body<UiState.Error>()
         }
 
-        Log.d("HTTP", "Response")
+        if(response.status.value >= 200 && response.status.value <= 299) {
+            val data = response.body<ApiResource<User>>()
+            preferenceData.update(DataStoreKeys.API_KEY, data.data.token)
+        }
+
         return UiState.Success(null)
-//
-//        if (response.status.value >= 400) {
-//            return UiState.Error
-//        }
-//
-//        return UiState.Success(null)
     }
 }

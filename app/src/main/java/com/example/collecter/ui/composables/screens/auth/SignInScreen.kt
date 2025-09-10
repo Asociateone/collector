@@ -19,14 +19,23 @@ fun SignInScreen(modifier: Modifier = Modifier) {
     val viewState = authViewModel.uiState.collectAsState().value
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var message by remember { mutableStateOf("") }
+
+    if (viewState is UiState.Error) {
+        message = viewState.message
+    }
 
     SignInView(
         modifier = modifier,
         email = email,
         password = password,
+        errorMessage = message,
         onEmailChange = { email = it },
         onPasswordChange = { password = it },
-        signIn = { authViewModel.login(email, password) },
+        signIn = {
+            message = ""
+            authViewModel.login(email, password)
+                 },
         isLoading = viewState is UiState.Loading
     )
 }

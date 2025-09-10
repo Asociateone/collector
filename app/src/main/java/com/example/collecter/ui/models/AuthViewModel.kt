@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.collecter.enums.UiState
 import com.example.collecter.repositories.AuthRepository
 import com.example.collecter.services.PreferenceDataStore
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
@@ -22,8 +23,11 @@ class AuthViewModel(private val authRepository: AuthRepository, val dataStore: P
      */
     fun login(email: String, password: String) {
         _uiState.value = UiState.Loading
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             _uiState.value  = authRepository.signIn(email, password)
+            if (_uiState.value is UiState.Error) {
+                Log.d("HTTP", "Error: ${(_uiState.value as UiState.Error).message}")
+            }
         }
     }
 
