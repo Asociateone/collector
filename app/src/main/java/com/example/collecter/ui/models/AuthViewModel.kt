@@ -23,6 +23,7 @@ class AuthViewModel(private val authRepository: AuthRepository, val dataStore: P
      */
     fun login(email: String, password: String) {
         _uiState.value = UiState.Loading
+
         viewModelScope.launch(Dispatchers.IO) {
             _uiState.value  = authRepository.signIn(email, password)
             if (_uiState.value is UiState.Error) {

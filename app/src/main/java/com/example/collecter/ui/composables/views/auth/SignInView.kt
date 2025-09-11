@@ -33,6 +33,9 @@ fun SignInView(
         verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        if (isLoading) {
+            LoadingView()
+        }
         Text(errorMessage, color = Color.Red, fontSize = 22.sp)
         TextInputField(email, onEmailChange, Modifier, placeholderText = "E-mail", imeAction = ImeAction.Next)
         TextInputField(password, onPasswordChange, Modifier, placeholderText = "Password", true)
