@@ -33,25 +33,33 @@ fun SignInView(
         verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        if (isLoading) {
-            LoadingView()
-        }
         Text(errorMessage, color = Color.Red, fontSize = 22.sp)
-        TextInputField(email, onEmailChange, Modifier, placeholderText = "E-mail", imeAction = ImeAction.Next)
-        TextInputField(password, onPasswordChange, Modifier, placeholderText = "Password", true)
-        AuthButton(Modifier, signIn, {})
+        TextInputField(
+            email,
+            onEmailChange,
+            Modifier, placeholderText = "E-mail",
+            imeAction = ImeAction.Next,
+            isDisabled = isLoading
+        )
+        TextInputField(password, onPasswordChange, Modifier, placeholderText = "Password", true, isDisabled = isLoading)
+        AuthButton(Modifier, signIn, {}, isLoading = isLoading)
     }
 }
 
 @Composable
-fun AuthButton(modifier: Modifier = Modifier, signIn: () -> Unit, signUp: () -> Unit)
+fun AuthButton(
+    modifier: Modifier = Modifier,
+    signIn: () -> Unit,
+    signUp: () -> Unit,
+    isLoading: Boolean
+)
 {
     Row (
         modifier,
         horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally),
     ){
-        Button(value = "Sign Up", onClick = signUp)
-        Button(value = "Sign In", onClick = signIn)
+        Button(value = "Sign Up", onClick = signUp, enabled = !isLoading)
+        Button(value = "Sign In", onClick = signIn, enabled = !isLoading)
     }
 }
 
@@ -66,5 +74,5 @@ fun SignInViewPreview()
 @Preview
 fun AuthButtonPreview()
 {
-    AuthButton(Modifier, {}, {})
+    AuthButton(signIn = {}, signUp = {}, isLoading = false)
 }

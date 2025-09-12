@@ -33,6 +33,7 @@ fun TextInputField(
     placeholderText: String = "Placeholder",
     isPassword: Boolean = false,
     imeAction: ImeAction = ImeAction.Done,
+    isDisabled: Boolean = false
 )
 {
     val interactionSource = remember { MutableInteractionSource() }
@@ -45,6 +46,7 @@ fun TextInputField(
         value = value,
         onValueChange = onValueChange,
         interactionSource = interactionSource,
+        enabled = !isDisabled,
         modifier = modifier
             .padding(10.dp)
             .border(
@@ -56,7 +58,7 @@ fun TextInputField(
         singleLine = true,
         textStyle = TextStyle(
             fontSize = 28.sp,
-            color = Color.Black
+            color = if (isDisabled) Color.LightGray else Color.Black
         ),
         keyboardOptions = KeyboardOptions(imeAction = imeAction),
         visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
