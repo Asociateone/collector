@@ -16,7 +16,7 @@ import com.example.collecter.ui.models.AuthViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun SignInScreen(modifier: Modifier = Modifier) {
+fun SignInScreen(modifier: Modifier = Modifier, navigateToSignUp: () -> Unit) {
 
     val authViewModel: AuthViewModel = koinViewModel()
     val viewState = authViewModel.uiState.collectAsState().value
@@ -43,6 +43,7 @@ fun SignInScreen(modifier: Modifier = Modifier) {
             message = ""
             authViewModel.login(email, password)
                  },
-        isLoading = viewState is UiState.Loading
+        isLoading = viewState is UiState.Loading,
+        navigateToSignUp = navigateToSignUp
     )
 }

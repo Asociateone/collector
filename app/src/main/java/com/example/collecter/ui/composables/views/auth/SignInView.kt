@@ -26,7 +26,8 @@ fun SignInView(
     onEmailChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
     signIn: () -> Unit,
-    isLoading: Boolean = false
+    isLoading: Boolean = false,
+    navigateToSignUp: () -> Unit
 ) {
     Column(
         modifier = modifier,
@@ -42,7 +43,7 @@ fun SignInView(
             isDisabled = isLoading
         )
         TextInputField(password, onPasswordChange, Modifier, placeholderText = "Password", true, isDisabled = isLoading)
-        AuthButton(Modifier, signIn, {}, isLoading = isLoading)
+        AuthButton(Modifier, signIn, navigateToSignUp, isLoading = isLoading)
     }
 }
 
@@ -67,7 +68,16 @@ fun AuthButton(
 @Preview(showBackground = true)
 fun SignInViewPreview()
 {
-    SignInView(modifier = Modifier.fillMaxSize().padding(20.dp), "email", "password", "", {}, {}, {})
+    SignInView(
+        modifier = Modifier.fillMaxSize().padding(20.dp),
+        "email",
+        "password",
+        onEmailChange = {},
+        onPasswordChange = {},
+        errorMessage = "",
+        signIn = {},
+        navigateToSignUp = {}
+    )
 }
 
 @Composable
