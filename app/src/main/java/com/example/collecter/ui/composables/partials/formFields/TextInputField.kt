@@ -35,7 +35,7 @@ fun TextInputField(
     isPassword: Boolean = false,
     imeAction: ImeAction = ImeAction.Done,
     isDisabled: Boolean = false,
-    errorMessage: String? = null
+    errorMessages: List<String> = emptyList<String>()
 )
 {
     val interactionSource = remember { MutableInteractionSource() }
@@ -79,7 +79,7 @@ fun TextInputField(
                 }
             }
         )
-        if (errorMessage !== null) {
+        errorMessages.forEach { errorMessage ->
             Text(
                 text = errorMessage,
                 color = Color.Red,
@@ -108,5 +108,5 @@ fun TextInputFieldWithTextPreview()
 @Preview(showBackground = true)
 fun TextInputFieldErrorPreview()
 {
-    TextInputField(value = "test@example.com", onValueChange = {}, placeholderText = "Enter text here", errorMessage = "emptyList()")
+    TextInputField(value = "test@example.com", onValueChange = {}, placeholderText = "Enter text here")
 }
