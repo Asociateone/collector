@@ -12,4 +12,8 @@ class AuthRepository(val http: HTTP)
     {
         return http.signIn(email, password)
     }
+
+    suspend fun signUp(email: String, username: String, password: String, passwordConfirmation: String): UiState<Nothing> {
+        return http.signUp(email, username, password, passwordConfirmation)
+    }
 }

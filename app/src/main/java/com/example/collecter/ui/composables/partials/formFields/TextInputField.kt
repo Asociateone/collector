@@ -4,6 +4,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicTextField
@@ -33,7 +34,8 @@ fun TextInputField(
     placeholderText: String = "Placeholder",
     isPassword: Boolean = false,
     imeAction: ImeAction = ImeAction.Done,
-    isDisabled: Boolean = false
+    isDisabled: Boolean = false,
+    errorMessage: String? = null
 )
 {
     val interactionSource = remember { MutableInteractionSource() }
@@ -42,40 +44,50 @@ fun TextInputField(
     val borderColor = if (isFocused) Color.LightGray else Color.Transparent
     val borderWidth = if (isFocused) 1.dp else 0.dp
 
-    BasicTextField(
-        value = value,
-        onValueChange = onValueChange,
-        interactionSource = interactionSource,
-        enabled = !isDisabled,
-        modifier = modifier
-            .padding(10.dp)
-            .border(
-                width = borderWidth,
-                color = borderColor,
-                shape = ShapeDefaults.Medium
-            )
-            .padding(14.dp).fillMaxWidth(0.8f),
-        singleLine = true,
-        textStyle = TextStyle(
-            fontSize = 28.sp,
-            color = if (isDisabled) Color.LightGray else Color.Black
-        ),
-        keyboardOptions = KeyboardOptions(imeAction = imeAction),
-        visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
-        decorationBox = {
-            innerTextField ->
-            Box {
-                if (value.isEmpty()) {
-                    Text(
-                        text = placeholderText,
-                        fontSize = 28.sp,
-                        color = Color.LightGray
-                    )
+    Column(modifier = modifier.fillMaxWidth(0.8f)) {
+        BasicTextField(
+            value = value,
+            onValueChange = onValueChange,
+            interactionSource = interactionSource,
+            enabled = !isDisabled,
+            modifier = Modifier // Removed fillMaxWidth from here
+                .padding(10.dp)
+                .border(
+                    width = borderWidth,
+                    color = borderColor,
+                    shape = ShapeDefaults.Medium
+                )
+                .padding(14.dp)
+                .fillMaxWidth(), // Added fillMaxWidth here to take the width of the parent Column
+            singleLine = true,
+            textStyle = TextStyle(
+                fontSize = 28.sp,
+                color = if (isDisabled) Color.LightGray else Color.Black
+            ),
+            keyboardOptions = KeyboardOptions(imeAction = imeAction),
+            visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
+            decorationBox = { innerTextField ->
+                Box {
+                    if (value.isEmpty()) {
+                        Text(
+                            text = placeholderText,
+                            fontSize = 28.sp,
+                            color = Color.LightGray
+                        )
+                    }
+                    innerTextField()
                 }
-                innerTextField()
             }
+        )
+        if (errorMessage !== null) {
+            Text(
+                text = errorMessage,
+                color = Color.Red,
+                fontSize = 12.sp,
+                modifier = Modifier.padding(start = 10.dp)
+            )
         }
-    )
+    }
 }
 
 @Composable
@@ -90,4 +102,11 @@ fun TextInputFieldPreview()
 fun TextInputFieldWithTextPreview()
 {
     TextInputField(value = "Hello", onValueChange = {}, placeholderText = "Enter text here")
+}
+
+@Composable
+@Preview(showBackground = true)
+fun TextInputFieldErrorPreview()
+{
+    TextInputField(value = "test@example.com", onValueChange = {}, placeholderText = "Enter text here", errorMessage = "emptyList()")
 }
