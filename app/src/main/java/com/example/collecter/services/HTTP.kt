@@ -50,7 +50,7 @@ class HTTP (val preferenceData: PreferenceDataStore) {
      * @param email
      * @param password
      */
-    suspend fun signIn(email: String, password: String): UiState<Nothing> {
+    suspend fun signIn(email: String, password: String): UiState<User> {
         val response = client.post("${mainUrl}/login") {
             header("Content-Type", "application/json")
             header("Accept", "application/json")
@@ -61,12 +61,10 @@ class HTTP (val preferenceData: PreferenceDataStore) {
             return response.body<UiState.Error>()
         }
 
-        if(response.status.value >= 200 && response.status.value <= 299) {
-            val data = response.body<ApiResource<User>>()
-            preferenceData.update(DataStoreKeys.API_KEY, data.data.token)
-        }
+        val data = response.body<ApiResource<User>>()
+        preferenceData.update(DataStoreKeys.API_KEY, data.data.token)
 
-        return UiState.Success(null)
+        return UiState.Success(data.data)
     }
 
     suspend fun signUp(
@@ -74,7 +72,7 @@ class HTTP (val preferenceData: PreferenceDataStore) {
         username: String,
         password: String,
         passwordConfirmation: String
-    ): UiState<Nothing> {
+    ): UiState<User> {
         val response = client.post("${mainUrl}/signup") {
             header("Content-Type", "application/json")
             header("Accept", "application/json")
@@ -95,6 +93,6 @@ class HTTP (val preferenceData: PreferenceDataStore) {
 //            preferenceData.update(DataStoreKeys.API_KEY, data.data.token)
 //        }
 
-        return UiState.Success(null)
+        return UiState.Success(response.body())
     }
 }

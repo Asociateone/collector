@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     id("kotlinx-serialization")
+    id("com.google.devtools.ksp") version "2.2.20-2.0.3"
 }
 
 kotlin {
@@ -61,6 +62,11 @@ dependencies {
 
     // Navigation
     implementation(libs.navigation.compose)
+
+    //Room
+    implementation(libs.androidx.room.runtime)
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
 
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.coroutines.core)

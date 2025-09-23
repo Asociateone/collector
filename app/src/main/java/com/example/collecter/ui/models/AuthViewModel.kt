@@ -1,9 +1,11 @@
 package com.example.collecter.ui.models
 
 import android.content.Context
+import android.service.autofill.UserData
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.collecter.dataObjects.User
 import com.example.collecter.enums.UiState
 import com.example.collecter.repositories.AuthRepository
 import com.example.collecter.services.PreferenceDataStore
@@ -15,8 +17,8 @@ import kotlinx.coroutines.launch
 
 class AuthViewModel(private val authRepository: AuthRepository, val dataStore: PreferenceDataStore): ViewModel() {
 
-    private val _uiState = MutableStateFlow<UiState<Nothing>>(UiState.Success(null))
-    val uiState: StateFlow<UiState<Nothing>> = _uiState
+    private val _uiState = MutableStateFlow<UiState<User?>>(UiState.Success(null))
+    val uiState: StateFlow<UiState<User?>> = _uiState
 
     /**
      * Login

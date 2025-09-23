@@ -2,6 +2,7 @@ package com.example.collecter.ui.composables.partials
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -21,7 +22,7 @@ fun AuthenticationNavBar(modifier: Modifier = Modifier, navController: NavHostCo
     ) {
         Column {
             IconButton({ navController.navigateUp() }, Modifier, true) {
-                Icon(Icons.Default.ArrowBack, "Back")
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
             }
         }
     }
