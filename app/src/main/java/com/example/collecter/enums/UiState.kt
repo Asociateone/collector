@@ -7,7 +7,7 @@ sealed interface UiState<out T> {
     @Serializable
     data object Loading : UiState<Nothing>
     @Serializable
-    data class Success<T>(val data: Nothing?) : UiState<T>
+    data class Success<T>(val data: T) : UiState<T>
     @Serializable
     data class Error(
         val message: String,
