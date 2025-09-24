@@ -1,9 +1,6 @@
 package com.example.collecter.ui.composables.screens.auth
 
-import android.util.Log
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -11,11 +8,11 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.example.collecter.enums.UiState
-import com.example.collecter.ui.composables.partials.Button
-import com.example.collecter.ui.composables.partials.formFields.TextInputField
+import com.example.collecter.ui.composables.views.auth.LoadingView
+import com.example.collecter.ui.composables.views.auth.SignUpView
 import com.example.collecter.ui.models.AuthViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -36,6 +33,10 @@ public fun SignUpScreen(modifier: Modifier = Modifier)
     val passwordConfirmationErrors  = remember { mutableStateListOf<String>() }
     val hasErrors = remember { mutableStateOf(false) }
 
+    if (viewState is UiState.Loading) {
+        LoadingView(modifier.height(100.dp))
+    }
+
     if (viewState is UiState.Error && !hasErrors.value ) {
         viewState.errors?.forEach { (index, fieldMessages) ->
             when (index) {
@@ -47,33 +48,32 @@ public fun SignUpScreen(modifier: Modifier = Modifier)
         }
         hasErrors.value = true
     }
-    Column (
-        modifier = modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-
-        TextInputField(email, {email = it}, Modifier, "Email", errorMessages = emailErrors)
-        TextInputField(username, {username = it}, Modifier, "Naam", errorMessages = usernameErrors)
-        TextInputField(password, {password = it}, Modifier, "Wachtwoord", isPassword = true, errorMessages = passwordErrors)
-        TextInputField(passwordConfirmation, {passwordConfirmation = it}, Modifier, "Wachtwoord herhaling", isPassword = true, errorMessages = passwordConfirmationErrors)
-
-        Button(
-            modifier = Modifier,
-            value = "Registreren",
-            onClick = {
-                authViewModel.signUp(
-                    email,
-                    username,
-                    password,
-                    passwordConfirmation
-                )
-                emailErrors.clear()
-                usernameErrors.clear()
-                passwordErrors.clear()
-                passwordConfirmationErrors.clear()
-                hasErrors.value = false
-            }
-        )
-    }
+    SignUpView(
+        modifier = modifier,
+        email = email,
+        username = username,
+        password = password,
+        passwordConfirmation = passwordConfirmation,
+        onUsernameChange = { username = it },
+        onEmailChange = { email = it },
+        onPasswordChange = { password = it },
+        onPasswordConfirmationChange = { passwordConfirmation = it },
+        emailErrors = emailErrors,
+        usernameErrors = usernameErrors,
+        passwordErrors = passwordErrors,
+        passwordConfirmationErrors = passwordConfirmationErrors,
+        submitSignUp = {
+            authViewModel.signUp(
+                email,
+                username,
+                password,
+                passwordConfirmation
+            )
+            emailErrors.clear()
+            usernameErrors.clear()
+            passwordErrors.clear()
+            passwordConfirmationErrors.clear()
+            hasErrors.value = false
+        }
+    )
 }
