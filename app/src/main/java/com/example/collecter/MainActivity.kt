@@ -43,7 +43,6 @@ class MainActivity : ComponentActivity() {
                         val authViewModel: AuthViewModel = koinViewModel()
 
                         val token = authViewModel.getToken().collectAsStateWithLifecycle(null)
-//
 
                         if (token.value === null) {
                             AuthenticationNavigation(modifier = Modifier
