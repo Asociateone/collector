@@ -3,13 +3,16 @@ package com.example.collecter.ui.models
 import android.content.Context
 import android.service.autofill.UserData
 import android.util.Log
+import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import com.example.collecter.dataObjects.User
 import com.example.collecter.enums.UiState
 import com.example.collecter.repositories.AuthRepository
 import com.example.collecter.services.PreferenceDataStore
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
@@ -44,7 +47,7 @@ class AuthViewModel(private val authRepository: AuthRepository, val dataStore: P
     /**
      * Get Token
      */
-    suspend fun getToken(): String? {
-        return dataStore.apiKey.first()
+    fun getToken(): Flow<String?> {
+        return dataStore.apiKey
     }
 }

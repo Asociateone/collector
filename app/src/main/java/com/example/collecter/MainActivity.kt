@@ -16,6 +16,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.collecter.enums.AuthNavigation
@@ -40,14 +41,11 @@ class MainActivity : ComponentActivity() {
                     }
                     Column(modifier = Modifier.padding(innerPadding)) {
                         val authViewModel: AuthViewModel = koinViewModel()
-                        var token by remember { mutableStateOf<String?>(null) }
-//
-                        LaunchedEffect(key1 = authViewModel) {
-                            token = authViewModel.getToken()
-                        }
+
+                        val token = authViewModel.getToken().collectAsStateWithLifecycle(null)
 //
 
-                        if (token === null) {
+                        if (token.value === null) {
                             AuthenticationNavigation(modifier = Modifier
                                 .padding(innerPadding)
                                 .fillMaxSize(),

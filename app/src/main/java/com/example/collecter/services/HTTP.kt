@@ -62,8 +62,6 @@ class HTTP (val preferenceData: PreferenceDataStore) {
         }
 
         val data = response.body<ApiResource<User>>()
-        preferenceData.update(DataStoreKeys.API_KEY, data.data.token)
-
         return UiState.Success(data.data)
     }
 
@@ -83,15 +81,15 @@ class HTTP (val preferenceData: PreferenceDataStore) {
                 "password_confirmation" to passwordConfirmation,
             ))
         }
-        Log.d("TEST", response.bodyAsText())
+
         if (response.status.value >= 400) {
             return response.body<UiState.Error>()
         }
-//
-//        if(response.status.value >= 200 && response.status.value <= 299) {
-//            val data = response.body<ApiResource<User>>()
-//            preferenceData.update(DataStoreKeys.API_KEY, data.data.token)
-//        }
+
+        if(response.status.value >= 200 && response.status.value <= 299) {
+            val data = response.body<ApiResource<User>>()
+            preferenceData.update(DataStoreKeys.API_KEY, data.data.token)
+        }
 
         return UiState.Success(response.body())
     }

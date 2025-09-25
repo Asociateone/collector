@@ -1,11 +1,13 @@
 package com.example.collecter.repositories
 
 import com.example.collecter.dataObjects.User
+import com.example.collecter.enums.DataStoreKeys
 import com.example.collecter.enums.UiState
 import com.example.collecter.services.Database
 import com.example.collecter.services.HTTP
+import com.example.collecter.services.PreferenceDataStore
 
-class AuthRepository(val http: HTTP, val database: Database)
+class AuthRepository(val http: HTTP, val database: Database, val preferenceData: PreferenceDataStore)
 {
     /**
      * @param email
@@ -16,6 +18,7 @@ class AuthRepository(val http: HTTP, val database: Database)
 
         if (data is UiState.Success) {
             database.userDao().insertUser(data.data)
+            preferenceData.update(DataStoreKeys.API_KEY, data.data.token)
         }
 
         return data
@@ -26,6 +29,7 @@ class AuthRepository(val http: HTTP, val database: Database)
 
         if (response is UiState.Success) {
             database.userDao().insertUser(response.data)
+            preferenceData.update(DataStoreKeys.API_KEY, response.data.token)
         }
 
         return response
