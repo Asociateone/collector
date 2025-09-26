@@ -4,15 +4,11 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
+import com.example.collecter.ui.composables.partials.auth.AuthenticationScaffold
+import com.example.collecter.ui.composables.partials.main.MainScaffold
 import com.example.collecter.ui.models.AuthViewModel
-import com.example.collecter.ui.navigations.AuthenticationNavigation
-import com.example.collecter.ui.navigations.MainNavigation
 import org.koin.androidx.compose.koinViewModel
 
 class MainActivity : ComponentActivity() {
@@ -20,24 +16,14 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                val navController = rememberNavController()
-                val authViewModel: AuthViewModel = koinViewModel()
-                val token = authViewModel.getToken().collectAsStateWithLifecycle(null)
+            val authViewModel: AuthViewModel = koinViewModel()
+            val navController = rememberNavController()
+            val token = authViewModel.getToken().collectAsStateWithLifecycle(null)
 
-                if (token.value === null) {
-                    AuthenticationNavigation(
-                        modifier = Modifier
-                            .padding(innerPadding)
-                            .fillMaxSize(),
-                        navController
-                    )
-                } else {
-                    MainNavigation(
-                        modifier = Modifier.padding(innerPadding),
-                        navController
-                    )
-                }
+            if (token.value === null) {
+                AuthenticationScaffold(navController)
+            } else {
+                MainScaffold(navController)
             }
         }
     }

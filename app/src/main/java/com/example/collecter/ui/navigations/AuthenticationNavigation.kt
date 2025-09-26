@@ -19,10 +19,6 @@ import com.example.collecter.ui.composables.screens.auth.SignUpScreen
 @Composable
 public fun AuthenticationNavigation(modifier: Modifier = Modifier, navController: NavHostController): Unit
 {
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    if (navBackStackEntry?.destination?.route.toString() !== AuthNavigation.SignIn.name) {
-        AuthenticationNavBar(modifier.fillMaxSize(), navController)
-    }
     NavHost(
         navController = navController,
         startDestination = AuthNavigation.SignIn.name,

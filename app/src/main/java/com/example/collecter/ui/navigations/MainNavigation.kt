@@ -3,11 +3,12 @@ package com.example.collecter.ui.navigations
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -27,15 +28,25 @@ fun MainNavigation(modifier: Modifier = Modifier, navController: NavHostControll
                 Text("??", color = Color.Black)
             }
         }) {
-            NavHost(
-                modifier = modifier,
-                navController = navController,
-                startDestination = MainNavigation.Dashboard.name,
-                enterTransition = { fadeIn(tween(0)) },
-                exitTransition = { fadeOut(tween(0)) },
-            ) {
-                composable(MainNavigation.Dashboard.name) {
-                    DashboardView(Modifier.fillMaxSize())
+            Scaffold(
+                topBar = {
+                    NavigationBar {
+                        Text("??", color= Color.Black)
+                    }
+                }
+            ) { innerPadding ->
+                NavHost(
+                    modifier = modifier.padding(innerPadding),
+                    navController = navController,
+                    startDestination = MainNavigation.Dashboard.name,
+                    enterTransition = { fadeIn(tween(0)) },
+                    exitTransition = { fadeOut(tween(0)) },
+                ) {
+                    composable(MainNavigation.Dashboard.name) {
+                        DashboardView(Modifier.fillMaxSize())
+                    }
                 }
             }
-}}}
+        }
+    }
+}
