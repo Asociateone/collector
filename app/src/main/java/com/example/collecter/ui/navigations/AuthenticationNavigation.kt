@@ -5,19 +5,26 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.collecter.enums.AuthNavigation
+import com.example.collecter.ui.composables.partials.auth.AuthenticationNavBar
 import com.example.collecter.ui.composables.screens.auth.SignInScreen
 import com.example.collecter.ui.composables.screens.auth.SignUpScreen
 
 @Composable
 public fun AuthenticationNavigation(modifier: Modifier = Modifier, navController: NavHostController): Unit
 {
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    if (navBackStackEntry?.destination?.route.toString() !== AuthNavigation.SignIn.name) {
+        AuthenticationNavBar(modifier.fillMaxSize(), navController)
+    }
     NavHost(
-        navController= navController,
+        navController = navController,
         startDestination = AuthNavigation.SignIn.name,
         enterTransition = { fadeIn(tween(0)) },
         exitTransition = { fadeOut(tween(0)) },
