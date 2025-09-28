@@ -23,7 +23,7 @@ import com.example.compose.CollecterTheme
 
 @Composable
 fun MainNavigation(modifier: Modifier = Modifier, navController: NavHostController): Unit {
-    CollecterTheme(dynamicColor = false) {
+    CollecterTheme() {
         ModalNavigationDrawer({
             ModalDrawerSheet {
                 Text("??", color = Color.Black)
