@@ -11,6 +11,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import com.example.collecter.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -20,11 +22,11 @@ fun MainNavbar (
 ) {
     CenterAlignedTopAppBar({
         Column {
-            Text("?dasdnsadjdas", color = Color.Black)
+            Text("?dasdnsadjdas")
         }
     }, modifier, navigationIcon = {
         IconButton(openDrawer) {
-            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+            Icon(painterResource(R.drawable.menu), contentDescription = "Back")
         }
     })
 }

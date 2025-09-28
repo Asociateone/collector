@@ -8,6 +8,6 @@ import androidx.compose.ui.graphics.Color
 @Composable
 fun DashboardScreen() {
     Column {
-        Text("Dashboard", color = Color.Black)
+        Text("Dashboard")
     }
 }

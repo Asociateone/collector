@@ -5,14 +5,15 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -20,18 +21,26 @@ import com.example.collecter.enums.MainNavigation
 import com.example.collecter.ui.composables.partials.main.MainNavbar
 import com.example.collecter.ui.composables.views.main.DashboardView
 import com.example.compose.CollecterTheme
+import kotlinx.coroutines.launch
 
 @Composable
 fun MainNavigation(modifier: Modifier = Modifier, navController: NavHostController): Unit {
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+
     CollecterTheme() {
         ModalNavigationDrawer({
             ModalDrawerSheet {
-                Text("??", color = Color.Black)
+                Text("??")
             }
-        }) {
+        }, drawerState = drawerState) {
             Scaffold(
                 topBar = {
-                    MainNavbar()
+                    MainNavbar(Modifier, openDrawer = {
+                        scope.launch {
+                            drawerState.open()
+                        }
+                    })
                 }
             ) { innerPadding ->
                 NavHost(
