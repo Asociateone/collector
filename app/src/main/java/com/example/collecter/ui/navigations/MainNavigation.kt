@@ -17,8 +17,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.collecter.enums.MainNavigation
+import com.example.collecter.ui.composables.partials.main.MainNavbar
 import com.example.collecter.ui.composables.views.main.DashboardView
-import com.example.collecter.ui.theme.CollecterTheme
+import com.example.compose.CollecterTheme
 
 @Composable
 fun MainNavigation(modifier: Modifier = Modifier, navController: NavHostController): Unit {
@@ -30,9 +31,7 @@ fun MainNavigation(modifier: Modifier = Modifier, navController: NavHostControll
         }) {
             Scaffold(
                 topBar = {
-                    NavigationBar {
-                        Text("??", color= Color.Black)
-                    }
+                    MainNavbar()
                 }
             ) { innerPadding ->
                 NavHost(
