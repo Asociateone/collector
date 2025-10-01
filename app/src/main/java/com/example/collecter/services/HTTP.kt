@@ -1,8 +1,8 @@
 package com.example.collecter.services
 
 import android.util.Log
-import com.example.collecter.dataObjects.ApiFailedResponse
 import com.example.collecter.dataObjects.ApiResource
+import com.example.collecter.dataObjects.Collection
 import com.example.collecter.dataObjects.User
 import com.example.collecter.enums.DataStoreKeys
 import com.example.collecter.enums.UiState
@@ -17,13 +17,14 @@ import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.utils.io.InternalAPI
+import kotlinx.coroutines.flow.first
 import kotlinx.serialization.json.Json
 
 @OptIn(InternalAPI::class)
 class HTTP (val preferenceData: PreferenceDataStore) {
     val mainUrl = "https://collect.rainaldo.nl/api"
 
-    private val client = HttpClient() {
+    private val client = HttpClient {
         install(ContentNegotiation) {
             json(Json {
                 prettyPrint = true
@@ -43,7 +44,7 @@ class HTTP (val preferenceData: PreferenceDataStore) {
      */
     suspend fun check() {
         val response = client.get("${mainUrl}/up")
-        Log.d("HTTP", "Response: ${response.body<String>().toString()}")
+        Log.d("HTTP", "Response: ${response.body<String>()}")
     }
 
     /**
@@ -92,5 +93,20 @@ class HTTP (val preferenceData: PreferenceDataStore) {
         }
 
         return UiState.Success(response.body())
+    }
+
+    suspend fun getCollectionList(): UiState<List<Collection>> {
+        val response = client.get("${mainUrl}/collections") {
+            header("Content-Type", "application/json")
+            header("Accept", "application/json")
+            header("Authorization", "Bearer ${preferenceData.apiKey.first()}")
+        }
+
+//        if (response.status.value >= 400) {
+//            return response.body<UiState.Error>()
+//        }
+//
+
+        return response.body<UiState.Success<List<Collection>>>()
     }
 }

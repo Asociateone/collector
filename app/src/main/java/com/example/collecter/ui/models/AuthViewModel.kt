@@ -31,9 +31,6 @@ class AuthViewModel(private val authRepository: AuthRepository, val dataStore: P
 
         viewModelScope.launch(Dispatchers.IO) {
             _uiState.value  = authRepository.signIn(email, password)
-            if (_uiState.value is UiState.Error) {
-                Log.d("HTTP", "Error: ${(_uiState.value as UiState.Error).message}")
-            }
         }
     }
 

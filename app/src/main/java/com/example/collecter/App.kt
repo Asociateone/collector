@@ -4,8 +4,10 @@ import android.app.Application
 import androidx.room.Room // Toevoegen voor Room
 import com.example.collecter.services.HTTP
 import com.example.collecter.repositories.AuthRepository
+import com.example.collecter.repositories.CollectionRepository
 import com.example.collecter.services.PreferenceDataStore
 import com.example.collecter.ui.models.AuthViewModel
+import com.example.collecter.ui.models.CollectionListViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.GlobalContext.startKoin
@@ -25,7 +27,10 @@ class App : Application() {
         singleOf(::PreferenceDataStore)
         singleOf(::HTTP)
         singleOf(::AuthRepository)
+
         viewModelOf(::AuthViewModel)
+        singleOf(::CollectionRepository)
+        viewModelOf(::CollectionListViewModel)
     }
 
     override fun onCreate() {

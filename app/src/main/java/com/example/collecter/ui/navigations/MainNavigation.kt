@@ -19,6 +19,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.collecter.enums.MainNavigation
 import com.example.collecter.ui.composables.partials.main.MainNavbar
+import com.example.collecter.ui.composables.views.main.CollectionView
 import com.example.collecter.ui.composables.views.main.DashboardView
 import com.example.compose.CollecterTheme
 import kotlinx.coroutines.launch
@@ -51,7 +52,13 @@ fun MainNavigation(modifier: Modifier = Modifier, navController: NavHostControll
                     exitTransition = { fadeOut(tween(0)) },
                 ) {
                     composable(MainNavigation.Dashboard.name) {
-                        DashboardView(Modifier.fillMaxSize())
+                        DashboardView(Modifier.fillMaxSize(), {
+                            navController.navigate("${MainNavigation.Dashboard.name}/$it")
+                        })
+                    }
+                    composable("${MainNavigation.Dashboard.name}/{collectionId}") {
+                        val collectionId = navController.currentBackStackEntry?.arguments?.getString("collectionId")
+                        CollectionView(collectionId.toString())
                     }
                 }
             }
