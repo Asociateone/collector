@@ -8,6 +8,7 @@ import com.example.collecter.repositories.CollectionRepository
 import com.example.collecter.services.PreferenceDataStore
 import com.example.collecter.ui.models.AuthViewModel
 import com.example.collecter.ui.models.CollectionListViewModel
+import com.example.collecter.ui.models.CollectionViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.GlobalContext.startKoin
@@ -31,6 +32,7 @@ class App : Application() {
         viewModelOf(::AuthViewModel)
         singleOf(::CollectionRepository)
         viewModelOf(::CollectionListViewModel)
+        viewModelOf(::CollectionViewModel)
     }
 
     override fun onCreate() {

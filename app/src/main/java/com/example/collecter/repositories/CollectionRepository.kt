@@ -1,14 +1,9 @@
 package com.example.collecter.repositories
 
-import android.util.Log
 import com.example.collecter.dataObjects.Collection
-import com.example.collecter.dataObjects.User
-import com.example.collecter.enums.DataStoreKeys
 import com.example.collecter.enums.UiState
 import com.example.collecter.services.Database
 import com.example.collecter.services.HTTP
-import com.example.collecter.services.PreferenceDataStore
-import io.ktor.util.logging.Logger
 
 class CollectionRepository(val http: HTTP, val database: Database)
 {
@@ -21,5 +16,10 @@ class CollectionRepository(val http: HTTP, val database: Database)
         }
 
         return collections
+    }
+
+    suspend fun getCollection(collectionId: Int): UiState<Collection> {
+        val collection = http.getCollection(collectionId)
+        return collection
     }
 }

@@ -13,6 +13,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -31,6 +34,8 @@ fun MainNavigation(modifier: Modifier = Modifier, navController: NavHostControll
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
+    val title = remember { mutableStateOf("") }
+
     CollecterTheme() {
         ModalNavigationDrawer({
             ModalDrawerSheet {
@@ -43,7 +48,7 @@ fun MainNavigation(modifier: Modifier = Modifier, navController: NavHostControll
                         scope.launch {
                             drawerState.open()
                         }
-                    })
+                    }, title.value)
                 },
                 contentWindowInsets = WindowInsets(10.dp, 10.dp, 10.dp, 10.dp)
             ) { innerPadding ->
@@ -63,7 +68,8 @@ fun MainNavigation(modifier: Modifier = Modifier, navController: NavHostControll
                         val collectionId = navController.currentBackStackEntry?.arguments?.getString("collectionId")
                         CollectionView(
                             Modifier.fillMaxSize(),
-                            collectionId.toString()
+                            collectionId.toString(),
+                            {title.value = it}
                         )
                     }
                 }

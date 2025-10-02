@@ -17,6 +17,7 @@ import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.utils.io.InternalAPI
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.first
 import kotlinx.serialization.json.Json
 
@@ -108,5 +109,15 @@ class HTTP (val preferenceData: PreferenceDataStore) {
 //
 
         return response.body<UiState.Success<List<Collection>>>()
+    }
+
+    suspend fun getCollection(collectionId: Int): UiState<Collection> {
+        val response = client.get("${mainUrl}/collections/${collectionId}") {
+            header("Content-Type", "application/json")
+            header("Accept", "application/json")
+            header("Authorization", "Bearer ${preferenceData.apiKey.first()}")
+        }
+
+        return response.body<UiState.Success<Collection>>()
     }
 }
