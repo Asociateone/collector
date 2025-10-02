@@ -11,8 +11,8 @@ import com.example.collecter.ui.models.CollectionListViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun CollectionView(collectionId: String) {
-    Column () {
+fun CollectionView(modifier: Modifier = Modifier, collectionId: String) {
+    Column (modifier) {
         Text("Collection Show ${collectionId}")
     }
 }

@@ -3,6 +3,7 @@ package com.example.collecter.ui.navigations
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.DrawerValue
@@ -14,6 +15,7 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -42,7 +44,8 @@ fun MainNavigation(modifier: Modifier = Modifier, navController: NavHostControll
                             drawerState.open()
                         }
                     })
-                }
+                },
+                contentWindowInsets = WindowInsets(10.dp, 10.dp, 10.dp, 10.dp)
             ) { innerPadding ->
                 NavHost(
                     modifier = modifier.padding(innerPadding),
@@ -58,7 +61,10 @@ fun MainNavigation(modifier: Modifier = Modifier, navController: NavHostControll
                     }
                     composable("${MainNavigation.Dashboard.name}/{collectionId}") {
                         val collectionId = navController.currentBackStackEntry?.arguments?.getString("collectionId")
-                        CollectionView(collectionId.toString())
+                        CollectionView(
+                            Modifier.fillMaxSize(),
+                            collectionId.toString()
+                        )
                     }
                 }
             }
