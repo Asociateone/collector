@@ -4,6 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import com.example.collecter.enums.UiState
+import com.example.collecter.ui.composables.screens.main.CollectionScreen
+import com.example.collecter.ui.composables.views.auth.LoadingView
 import com.example.collecter.ui.models.CollectionViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -11,14 +13,19 @@ import org.koin.androidx.compose.koinViewModel
 fun CollectionView(modifier: Modifier = Modifier, collectionId: String, collectionTitle: (String) -> Unit) {
     val collectionViewModel : CollectionViewModel = koinViewModel()
     collectionViewModel.getCollection(collectionId.toInt())
-//
-    val collection = collectionViewModel.uiState.collectAsState().value
 
-//    if (collection is UiState.Success) {
-        collectionTitle(if(collection is UiState.Success) collection.data.title else "")
-//    }
-
-//    CollectionScreen(
-//        modifier,
-//    )
+    when (val collection = collectionViewModel.uiState.collectAsState().value) {
+        is UiState.Loading -> {
+            LoadingView(modifier)
+        }
+        is UiState.Success -> {
+            collectionTitle(collection.data.title)
+            CollectionScreen(
+                modifier,
+            )
+        }
+        is UiState.Error -> {
+            // TODO: Handle error state
+        }
+    }
 }
