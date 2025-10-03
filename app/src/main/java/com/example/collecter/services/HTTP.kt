@@ -103,11 +103,6 @@ class HTTP (val preferenceData: PreferenceDataStore) {
             header("Authorization", "Bearer ${preferenceData.apiKey.first()}")
         }
 
-//        if (response.status.value >= 400) {
-//            return response.body<UiState.Error>()
-//        }
-//
-
         return response.body<UiState.Success<List<Collection>>>()
     }
 

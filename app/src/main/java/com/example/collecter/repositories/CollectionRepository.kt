@@ -19,7 +19,6 @@ class CollectionRepository(val http: HTTP, val database: Database)
     }
 
     suspend fun getCollection(collectionId: Int): UiState<Collection> {
-        val collection = http.getCollection(collectionId)
-        return collection
+        return http.getCollection(collectionId)
     }
 }

@@ -7,12 +7,10 @@ import androidx.compose.ui.Modifier
 import com.example.collecter.ui.composables.views.auth.LoadingView
 
 @Composable
-fun CollectionScreen(modifier: Modifier = Modifier, isLoading: Boolean = false): Unit
+fun CollectionScreen(modifier: Modifier = Modifier): Unit
 {
-    if (isLoading) {
-        LoadingView()
-    }
-    Column (modifier) {
-        Text("I just want to say hello!")
-    }
+
+//    Column (modifier) {
+//        Text("I just want to say hello!")
+//    }
 }
