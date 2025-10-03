@@ -19,6 +19,17 @@ class CollectionRepository(val http: HTTP, val database: Database)
     }
 
     suspend fun getCollection(collectionId: Int): UiState<Collection> {
-        return http.getCollection(collectionId)
+        // Try local database first
+        val cached = database.collectionDao().getById(collectionId)
+        if (cached != null) {
+            return UiState.Success(cached)
+        }
+
+        // Fallback to network
+        val result = http.getCollection(collectionId)
+        if (result is UiState.Success) {
+            database.collectionDao().insert(listOf(result.data))
+        }
+        return result
     }
 }

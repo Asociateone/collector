@@ -25,6 +25,10 @@ import kotlinx.serialization.json.Json
 class HTTP (val preferenceData: PreferenceDataStore) {
     val mainUrl = "https://collect.rainaldo.nl/api"
 
+    private suspend fun getAuthHeader(): String {
+        return "Bearer ${preferenceData.apiKey.first()}"
+    }
+
     private val client = HttpClient {
         install(ContentNegotiation) {
             json(Json {
@@ -100,7 +104,11 @@ class HTTP (val preferenceData: PreferenceDataStore) {
         val response = client.get("${mainUrl}/collections") {
             header("Content-Type", "application/json")
             header("Accept", "application/json")
-            header("Authorization", "Bearer ${preferenceData.apiKey.first()}")
+            header("Authorization", getAuthHeader())
+        }
+
+        if (response.status.value >= 400) {
+            return response.body<UiState.Error>()
         }
 
         return response.body<UiState.Success<List<Collection>>>()
@@ -110,7 +118,11 @@ class HTTP (val preferenceData: PreferenceDataStore) {
         val response = client.get("${mainUrl}/collections/${collectionId}") {
             header("Content-Type", "application/json")
             header("Accept", "application/json")
-            header("Authorization", "Bearer ${preferenceData.apiKey.first()}")
+            header("Authorization", getAuthHeader())
+        }
+
+        if (response.status.value >= 400) {
+            return response.body<UiState.Error>()
         }
 
         return response.body<UiState.Success<Collection>>()

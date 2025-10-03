@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 
 class CollectionListViewModel (val collectionRepository: CollectionRepository) : ViewModel ()
 {
-    private val _uiState = MutableStateFlow<UiState<List<Collection>>>(UiState.Success(emptyList()))
+    private val _uiState = MutableStateFlow<UiState<List<Collection>>>(UiState.Loading)
 
     val uiState: StateFlow<UiState<List<Collection>>> = _uiState
     init {
