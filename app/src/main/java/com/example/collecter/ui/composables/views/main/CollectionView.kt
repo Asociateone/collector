@@ -1,6 +1,9 @@
 package com.example.collecter.ui.composables.views.main
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import com.example.collecter.enums.UiState
@@ -12,11 +15,16 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun CollectionView(modifier: Modifier = Modifier, collectionId: String, collectionTitle: (String) -> Unit) {
     val collectionViewModel : CollectionViewModel = koinViewModel()
-    collectionViewModel.getCollection(collectionId.toInt())
+
+    LaunchedEffect(collectionId) {
+        collectionViewModel.getCollection(collectionId.toInt())
+    }
 
     when (val collection = collectionViewModel.uiState.collectAsState().value) {
         is UiState.Loading -> {
-            LoadingView(modifier)
+            Column (modifier.fillMaxSize()) {
+                LoadingView()
+            }
         }
         is UiState.Success -> {
             collectionTitle(collection.data.title)
