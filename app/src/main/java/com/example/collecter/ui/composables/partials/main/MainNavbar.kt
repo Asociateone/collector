@@ -22,9 +22,10 @@ fun MainNavbar (
         Column {
             Text(title)
         }
-    }, modifier, navigationIcon = {
-        IconButton(openDrawer) {
-            Icon(painterResource(R.drawable.menu), contentDescription = "Back")
-        }
-    })
+    }, modifier,
+        actions = {
+            IconButton(openDrawer) {
+                Icon(painterResource(R.drawable.menu), contentDescription = "Back")
+            }
+    }, )
 }
