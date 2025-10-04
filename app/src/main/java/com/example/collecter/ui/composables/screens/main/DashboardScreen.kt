@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -13,7 +15,10 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,10 +28,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.collecter.R
 import com.example.collecter.dataObjects.Collection
+import com.example.collecter.ui.composables.partials.Button
+import com.example.collecter.ui.composables.partials.formFields.TextInputField
 import com.example.collecter.ui.composables.views.auth.LoadingView
 
 @Composable
@@ -37,23 +46,35 @@ fun DashboardScreen(
     isCreating: Boolean,
     goToCollection: (Int) -> Unit,
     createCollection: () -> Unit,
+    onDismissCreate: () -> Unit = {},
+    newCollectionTitle: String
 ) {
-    if (isLoading) {
-        LoadingView(Modifier)
-    }
-
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(2),
-        modifier = modifier.padding(8.dp),
-        contentPadding = PaddingValues(8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        items(collectionList) { collection ->
-            ListItem(collectionList = collection, modifier = Modifier.clickable(onClick = { goToCollection(collection.id) }))
+    Box(modifier = modifier) {
+        if (isLoading) {
+            LoadingView(Modifier)
         }
-        item {
-            AddListItem(Modifier.clickable(onClick = {}))
+
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            modifier = Modifier.padding(8.dp),
+            contentPadding = PaddingValues(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(collectionList) { collection ->
+                ListItem(collectionList = collection, modifier = Modifier.clickable(onClick = { goToCollection(collection.id) }))
+            }
+            item {
+                AddListItem(Modifier.clickable(onClick = createCollection))
+            }
+        }
+
+        if (isCreating) {
+            CreateCollectionOverlay(
+                title = newCollectionTitle,
+                onDismiss = onDismissCreate,
+                onCreate = createCollection
+            )
         }
     }
 }
@@ -117,6 +138,64 @@ fun AddListItem(modifier: Modifier = Modifier) {
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.padding(top = 8.dp)
             )
+        }
+    }
+}
+
+@Composable
+fun CreateCollectionOverlay(
+    title: String = "",
+    updateTitle: (String) -> Unit = {},
+    onDismiss: () -> Unit,
+    onCreate: () -> Unit
+) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.5f))
+                .clickable(onClick = onDismiss),
+            contentAlignment = Alignment.Center
+        ) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth(0.9f)
+                    .clickable(enabled = false) {},
+            ) {
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Box(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = "Create Collection",
+                            style = MaterialTheme.typography.headlineSmall,
+                            modifier = Modifier.align(Alignment.CenterStart)
+                        )
+                        IconButton(
+                            onClick = onDismiss,
+                            modifier = Modifier.align(Alignment.CenterEnd)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Close,
+                                contentDescription = "Close"
+                            )
+                        }
+                    }
+                    TextInputField(
+                        title,
+                        onValueChange = updateTitle,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Button(modifier = Modifier, value = "create", onCreate)
+                }
+            }
         }
     }
 }

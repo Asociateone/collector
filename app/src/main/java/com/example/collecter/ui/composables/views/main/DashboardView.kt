@@ -2,6 +2,8 @@ package com.example.collecter.ui.composables.views.main
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import com.example.collecter.enums.UiState
 import com.example.collecter.ui.composables.screens.main.DashboardScreen
@@ -12,13 +14,16 @@ import org.koin.androidx.compose.koinViewModel
 fun DashboardView(modifier: Modifier = Modifier, goToCollection : (Int) -> Unit) {
     val collectionListViewModel: CollectionListViewModel = koinViewModel()
     val viewState = collectionListViewModel.uiState.collectAsState().value
+    val showCreateOverlay = remember { mutableStateOf(false) }
 
     DashboardScreen(
         modifier = modifier,
         collectionList = if (viewState is UiState.Success) viewState.data else emptyList(),
         isLoading = viewState is UiState.Loading,
-        isCreating = false,
+        isCreating = showCreateOverlay.value,
         goToCollection = goToCollection,
-        createCollection = {}
+        createCollection = { showCreateOverlay.value = true },
+        onDismissCreate = { showCreateOverlay.value = false },
+        ""
     )
 }
