@@ -32,4 +32,14 @@ class CollectionRepository(val http: HTTP, val database: Database)
         }
         return result
     }
+
+    suspend fun createCollection(title: String): UiState<Collection> {
+        val result = http.createCollection(title)
+
+        if (result is UiState.Success) {
+            database.collectionDao().insert(listOf(result.data))
+        }
+
+        return result
+    }
 }

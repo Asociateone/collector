@@ -127,4 +127,20 @@ class HTTP (val preferenceData: PreferenceDataStore) {
 
         return response.body<UiState.Success<Collection>>()
     }
+
+    suspend fun createCollection(title: String): UiState<Collection> {
+        val response = client.post("${mainUrl}/collections") {
+            header("Content-Type", "application/json")
+            header("Accept", "application/json")
+            header("Authorization", getAuthHeader())
+            setBody({
+                "title" to title
+            })
+        }
+        if (response.status.value >= 400) {
+            return response.body<UiState.Error>()
+        }
+
+        return response.body<UiState.Success<Collection>>()
+    }
 }

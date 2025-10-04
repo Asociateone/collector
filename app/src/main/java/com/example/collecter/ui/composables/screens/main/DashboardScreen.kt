@@ -47,7 +47,9 @@ fun DashboardScreen(
     goToCollection: (Int) -> Unit,
     createCollection: () -> Unit,
     onDismissCreate: () -> Unit = {},
-    newCollectionTitle: String
+    newCollectionTitle: String,
+    updateNewCollectionTitle: (String) -> Unit,
+    submitNewCollection: () -> Unit
 ) {
     Box(modifier = modifier) {
         if (isLoading) {
@@ -73,7 +75,8 @@ fun DashboardScreen(
             CreateCollectionOverlay(
                 title = newCollectionTitle,
                 onDismiss = onDismissCreate,
-                onCreate = createCollection
+                onSubmit = submitNewCollection,
+                updateTitle = updateNewCollectionTitle
             )
         }
     }
@@ -147,7 +150,7 @@ fun CreateCollectionOverlay(
     title: String = "",
     updateTitle: (String) -> Unit = {},
     onDismiss: () -> Unit,
-    onCreate: () -> Unit
+    onSubmit: () -> Unit,
 ) {
     Dialog(
         onDismissRequest = onDismiss,
@@ -191,9 +194,10 @@ fun CreateCollectionOverlay(
                     TextInputField(
                         title,
                         onValueChange = updateTitle,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        placeholderText = "Title"
                     )
-                    Button(modifier = Modifier, value = "create", onCreate)
+                    Button(modifier = Modifier, value = "create", onSubmit)
                 }
             }
         }

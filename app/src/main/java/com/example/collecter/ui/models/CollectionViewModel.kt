@@ -23,4 +23,11 @@ class CollectionViewModel (val collectionRepository: CollectionRepository) : Vie
             _uiState.value = collectionRepository.getCollection(id)
         }
     }
+
+    fun createCollection(title: String) {
+        _uiState.value = UiState.Loading
+        viewModelScope.launch(Dispatchers.IO) {
+            _uiState.value = collectionRepository.createCollection(title)
+        }
+    }
 }
