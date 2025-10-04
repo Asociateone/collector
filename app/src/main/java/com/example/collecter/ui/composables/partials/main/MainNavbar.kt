@@ -1,31 +1,50 @@
 package com.example.collecter.ui.composables.partials.main
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
-import com.example.collecter.R
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainNavbar (
     modifier: Modifier = Modifier,
-    openDrawer: () -> Unit = {},
+    onNavigateToHome: () -> Unit = {},
+    onNavigateToMore: () -> Unit = {},
     title: String = ""
 ) {
-    CenterAlignedTopAppBar({
-        Column {
-            Text(title)
-        }
-    }, modifier,
-        actions = {
-            IconButton(openDrawer) {
-                Icon(painterResource(R.drawable.menu), contentDescription = "Back")
-            }
-    }, )
+    NavigationBar(modifier = modifier) {
+        NavigationBarItem(
+            selected = title == "Dashboard",
+            onClick = onNavigateToHome,
+            icon = {
+                Icon(
+                    imageVector = Icons.Filled.Home,
+                    contentDescription = "Home"
+                )
+            },
+            label = { Text("Home") }
+        )
+        NavigationBarItem(
+            selected = title == "More",
+            onClick = onNavigateToMore,
+            icon = {
+                Icon(
+                    imageVector = Icons.Filled.MoreVert,
+                    contentDescription = "More"
+                )
+            },
+            label = { Text("More") }
+        )
+    }
 }

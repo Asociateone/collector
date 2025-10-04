@@ -25,55 +25,70 @@ import com.example.collecter.enums.MainNavigation
 import com.example.collecter.ui.composables.partials.main.MainNavbar
 import com.example.collecter.ui.composables.views.main.CollectionView
 import com.example.collecter.ui.composables.views.main.DashboardView
+import com.example.collecter.ui.composables.views.main.MoreView
 import com.example.compose.CollecterTheme
 import kotlinx.coroutines.launch
 
 @Composable
 fun MainNavigation(modifier: Modifier = Modifier, navController: NavHostController): Unit {
-    val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
     val title = remember { mutableStateOf("") }
 
     CollecterTheme() {
-        ModalNavigationDrawer({
-            ModalDrawerSheet {
-                Text("??")
-            }
-        }, drawerState = drawerState) {
             Scaffold(
-                topBar = {
-                    MainNavbar(Modifier, openDrawer = {
-                        scope.launch {
-                            drawerState.open()
+            bottomBar = {
+                MainNavbar(
+                    Modifier,
+                    onNavigateToHome = {
+                        navController.navigate(MainNavigation.Dashboard.name) {
+                            popUpTo(navController.graph.startDestinationId) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
                         }
-                    }, title.value)
-                },
-                contentWindowInsets = WindowInsets(10.dp, 10.dp, 10.dp, 10.dp)
-            ) { innerPadding ->
-                NavHost(
-                    modifier = modifier.padding(innerPadding),
-                    navController = navController,
-                    startDestination = MainNavigation.Dashboard.name,
-                    enterTransition = { fadeIn(tween(0)) },
-                    exitTransition = { fadeOut(tween(0)) },
-                ) {
-                    composable(MainNavigation.Dashboard.name) {
-                        title.value = MainNavigation.Dashboard.name
-                        DashboardView(Modifier.fillMaxSize(), {
-                            navController.navigate("${MainNavigation.Dashboard.name}/$it")
-                        })
-                    }
-                    composable("${MainNavigation.Dashboard.name}/{collectionId}") {
-                        val collectionId =
-                            navController.currentBackStackEntry?.arguments?.getString("collectionId")
-                                ?: ""
-                        CollectionView(
-                            Modifier.fillMaxSize(),
-                            collectionId,
-                            { title.value = it },
-                        )
-                    }
+                    },
+                    onNavigateToMore = {
+                        navController.navigate(MainNavigation.More.name) {
+                            popUpTo(navController.graph.startDestinationId) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    },
+                    title.value
+                )
+            },
+            contentWindowInsets = WindowInsets(10.dp, 10.dp, 10.dp, 10.dp)
+        ) { innerPadding ->
+            NavHost(
+                modifier = modifier.padding(innerPadding),
+                navController = navController,
+                startDestination = MainNavigation.Dashboard.name,
+                enterTransition = { fadeIn(tween(0)) },
+                exitTransition = { fadeOut(tween(0)) },
+            ) {
+                composable(MainNavigation.Dashboard.name) {
+                    title.value = MainNavigation.Dashboard.name
+                    DashboardView(Modifier.fillMaxSize(), {
+                        navController.navigate("${MainNavigation.Dashboard.name}/$it")
+                    })
+                }
+                composable("${MainNavigation.Dashboard.name}/{collectionId}") {
+                    val collectionId =
+                        navController.currentBackStackEntry?.arguments?.getString("collectionId")
+                            ?: ""
+                    CollectionView(
+                        Modifier.fillMaxSize(),
+                        collectionId,
+                        { title.value = it },
+                    )
+                }
+                composable(MainNavigation.More.name) {
+                    title.value = MainNavigation.More.name
+                    MoreView(Modifier.fillMaxSize())
                 }
             }
         }
