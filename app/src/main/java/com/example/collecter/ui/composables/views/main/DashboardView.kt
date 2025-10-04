@@ -21,6 +21,7 @@ fun DashboardView(modifier: Modifier = Modifier, goToCollection : (Int) -> Unit)
     val showCreateOverlay = remember { mutableStateOf(false) }
     val newCollectionTitle = remember { mutableStateOf("") }
     val searchQuery = remember { mutableStateOf("") }
+    val isCreatingInProgress = remember { mutableStateOf(false) }
 
     val filteredCollections = if (viewState is UiState.Success) {
         viewState.data.filter { collection ->
@@ -30,6 +31,24 @@ fun DashboardView(modifier: Modifier = Modifier, goToCollection : (Int) -> Unit)
         emptyList()
     }
 
+    // Handle creation state changes
+    when (viewStateCollection) {
+        is UiState.Success -> {
+            if (isCreatingInProgress.value) {
+                newCollectionTitle.value = ""
+                showCreateOverlay.value = false
+                isCreatingInProgress.value = false
+                collectionListViewModel.getCollectionList()
+            }
+        }
+        is UiState.Error -> {
+            if (isCreatingInProgress.value) {
+                isCreatingInProgress.value = false
+            }
+        }
+        else -> {}
+    }
+
     DashboardScreen(
         modifier = modifier,
         collectionList = filteredCollections,
@@ -37,22 +56,19 @@ fun DashboardView(modifier: Modifier = Modifier, goToCollection : (Int) -> Unit)
         searchQuery = searchQuery.value,
         onSearchQueryChange = { searchQuery.value = it },
         isCreating = showCreateOverlay.value,
-        isCreatingLoading = viewStateCollection is UiState.Loading,
+        isCreatingLoading = isCreatingInProgress.value && viewStateCollection is UiState.Loading,
+        createErrorMessage = if (viewStateCollection is UiState.Error && isCreatingInProgress.value) viewStateCollection.message else null,
         goToCollection = goToCollection,
         createCollection = { showCreateOverlay.value = true },
-        onDismissCreate = { showCreateOverlay.value = false },
+        onDismissCreate = {
+            showCreateOverlay.value = false
+            isCreatingInProgress.value = false
+        },
         newCollectionTitle = newCollectionTitle.value,
         updateNewCollectionTitle = {newCollectionTitle.value = it},
         submitNewCollection = {
+            isCreatingInProgress.value = true
             collectionViewModel.createCollection(newCollectionTitle.value)
-            when (viewStateCollection) {
-                is UiState.Success -> {
-                    newCollectionTitle.value = ""
-                    showCreateOverlay.value = false
-                    collectionListViewModel.getCollectionList()
-                }
-                else -> {}
-            }
         }
     )
 }

@@ -47,6 +47,7 @@ fun DashboardScreen(
     isCreatingLoading: Boolean = false,
     searchQuery: String = "",
     onSearchQueryChange: (String) -> Unit = {},
+    createErrorMessage: String? = null,
     goToCollection: (Int) -> Unit,
     createCollection: () -> Unit,
     onDismissCreate: () -> Unit = {},
@@ -91,7 +92,8 @@ fun DashboardScreen(
                 onDismiss = onDismissCreate,
                 onSubmit = submitNewCollection,
                 updateTitle = updateNewCollectionTitle,
-                isLoading = isCreatingLoading
+                isLoading = isCreatingLoading,
+                errorMessage = createErrorMessage
             )
         }
     }
@@ -166,7 +168,8 @@ fun CreateCollectionOverlay(
     updateTitle: (String) -> Unit = {},
     onDismiss: () -> Unit,
     onSubmit: () -> Unit,
-    isLoading: Boolean = false
+    isLoading: Boolean = false,
+    errorMessage: String? = null
 ) {
     Dialog(
         onDismissRequest = onDismiss,
@@ -213,6 +216,14 @@ fun CreateCollectionOverlay(
                         modifier = Modifier.fillMaxWidth(),
                         placeholderText = "Title"
                     )
+                    if (errorMessage != null) {
+                        Text(
+                            text = errorMessage,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
                     Button(
                         modifier = Modifier,
                         value = "create",
