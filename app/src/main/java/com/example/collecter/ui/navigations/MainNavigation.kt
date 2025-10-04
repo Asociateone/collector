@@ -59,6 +59,7 @@ fun MainNavigation(modifier: Modifier = Modifier, navController: NavHostControll
                     exitTransition = { fadeOut(tween(0)) },
                 ) {
                     composable(MainNavigation.Dashboard.name) {
+                        title.value = MainNavigation.Dashboard.name
                         DashboardView(Modifier.fillMaxSize(), {
                             navController.navigate("${MainNavigation.Dashboard.name}/$it")
                         })
