@@ -64,11 +64,13 @@ fun MainNavigation(modifier: Modifier = Modifier, navController: NavHostControll
                         })
                     }
                     composable("${MainNavigation.Dashboard.name}/{collectionId}") {
-                        val collectionId = navController.currentBackStackEntry?.arguments?.getString("collectionId")
+                        val collectionId =
+                            navController.currentBackStackEntry?.arguments?.getString("collectionId")
+                                ?: ""
                         CollectionView(
                             Modifier.fillMaxSize(),
-                            collectionId.toString(),
-                            {title.value = it}
+                            collectionId,
+                            { title.value = it },
                         )
                     }
                 }

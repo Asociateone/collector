@@ -1,5 +1,6 @@
 package com.example.collecter.ui.composables.views.main
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -13,11 +14,17 @@ import com.example.collecter.ui.models.CollectionViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun CollectionView(modifier: Modifier = Modifier, collectionId: String, collectionTitle: (String) -> Unit) {
+fun CollectionView(
+    modifier: Modifier = Modifier,
+    collectionId: String,
+    collectionTitle: (String) -> Unit,
+) {
     val collectionViewModel : CollectionViewModel = koinViewModel()
 
     LaunchedEffect(collectionId) {
-        collectionViewModel.getCollection(collectionId.toInt())
+        collectionId.toIntOrNull()?.let {
+            collectionViewModel.getCollection(it)
+        }
     }
 
     when (val collection = collectionViewModel.uiState.collectAsState().value) {
