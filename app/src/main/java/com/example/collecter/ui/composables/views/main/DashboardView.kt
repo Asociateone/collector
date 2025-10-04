@@ -26,15 +26,20 @@ fun DashboardView(modifier: Modifier = Modifier, goToCollection : (Int) -> Unit)
         collectionList = if (viewState is UiState.Success) viewState.data else emptyList(),
         isLoading = viewState is UiState.Loading,
         isCreating = showCreateOverlay.value,
+        isCreatingLoading = viewStateCollection is UiState.Loading,
         goToCollection = goToCollection,
         createCollection = { showCreateOverlay.value = true },
         onDismissCreate = { showCreateOverlay.value = false },
-        newCollectionTitle.value,
-        {newCollectionTitle.value = it},
-        {
+        newCollectionTitle = newCollectionTitle.value,
+        updateNewCollectionTitle = {newCollectionTitle.value = it},
+        submitNewCollection = {
             collectionViewModel.createCollection(newCollectionTitle.value)
             when (viewStateCollection) {
-                is UiState.Success -> showCreateOverlay.value = false
+                is UiState.Success -> {
+                    newCollectionTitle.value = ""
+                    showCreateOverlay.value = false
+                    collectionListViewModel.getCollectionList()
+                }
                 else -> {}
             }
         }

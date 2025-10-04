@@ -20,6 +20,7 @@ import io.ktor.utils.io.InternalAPI
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.first
 import kotlinx.serialization.json.Json
+import kotlin.collections.mapOf
 
 @OptIn(InternalAPI::class)
 class HTTP (val preferenceData: PreferenceDataStore) {
@@ -133,10 +134,11 @@ class HTTP (val preferenceData: PreferenceDataStore) {
             header("Content-Type", "application/json")
             header("Accept", "application/json")
             header("Authorization", getAuthHeader())
-            setBody({
-                "title" to title
-            })
+            setBody(mapOf(
+                "title" to title,
+            ))
         }
+
         if (response.status.value >= 400) {
             return response.body<UiState.Error>()
         }

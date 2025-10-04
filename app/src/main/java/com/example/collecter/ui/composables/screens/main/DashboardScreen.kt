@@ -44,6 +44,7 @@ fun DashboardScreen(
     collectionList: List<Collection>,
     isLoading: Boolean,
     isCreating: Boolean,
+    isCreatingLoading: Boolean = false,
     goToCollection: (Int) -> Unit,
     createCollection: () -> Unit,
     onDismissCreate: () -> Unit = {},
@@ -76,7 +77,8 @@ fun DashboardScreen(
                 title = newCollectionTitle,
                 onDismiss = onDismissCreate,
                 onSubmit = submitNewCollection,
-                updateTitle = updateNewCollectionTitle
+                updateTitle = updateNewCollectionTitle,
+                isLoading = isCreatingLoading
             )
         }
     }
@@ -151,6 +153,7 @@ fun CreateCollectionOverlay(
     updateTitle: (String) -> Unit = {},
     onDismiss: () -> Unit,
     onSubmit: () -> Unit,
+    isLoading: Boolean = false
 ) {
     Dialog(
         onDismissRequest = onDismiss,
@@ -197,7 +200,12 @@ fun CreateCollectionOverlay(
                         modifier = Modifier.fillMaxWidth(),
                         placeholderText = "Title"
                     )
-                    Button(modifier = Modifier, value = "create", onSubmit)
+                    Button(
+                        modifier = Modifier,
+                        value = "create",
+                        onClick = onSubmit,
+                        isLoading = isLoading
+                    )
                 }
             }
         }
