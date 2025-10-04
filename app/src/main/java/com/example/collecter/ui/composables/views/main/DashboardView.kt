@@ -20,11 +20,22 @@ fun DashboardView(modifier: Modifier = Modifier, goToCollection : (Int) -> Unit)
     val viewStateCollection = collectionViewModel.uiState.collectAsState().value
     val showCreateOverlay = remember { mutableStateOf(false) }
     val newCollectionTitle = remember { mutableStateOf("") }
+    val searchQuery = remember { mutableStateOf("") }
+
+    val filteredCollections = if (viewState is UiState.Success) {
+        viewState.data.filter { collection ->
+            collection.title.contains(searchQuery.value, ignoreCase = true)
+        }
+    } else {
+        emptyList()
+    }
 
     DashboardScreen(
         modifier = modifier,
-        collectionList = if (viewState is UiState.Success) viewState.data else emptyList(),
+        collectionList = filteredCollections,
         isLoading = viewState is UiState.Loading,
+        searchQuery = searchQuery.value,
+        onSearchQueryChange = { searchQuery.value = it },
         isCreating = showCreateOverlay.value,
         isCreatingLoading = viewStateCollection is UiState.Loading,
         goToCollection = goToCollection,

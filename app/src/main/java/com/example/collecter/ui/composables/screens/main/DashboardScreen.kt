@@ -45,6 +45,8 @@ fun DashboardScreen(
     isLoading: Boolean,
     isCreating: Boolean,
     isCreatingLoading: Boolean = false,
+    searchQuery: String = "",
+    onSearchQueryChange: (String) -> Unit = {},
     goToCollection: (Int) -> Unit,
     createCollection: () -> Unit,
     onDismissCreate: () -> Unit = {},
@@ -57,18 +59,29 @@ fun DashboardScreen(
             LoadingView(Modifier)
         }
 
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            modifier = Modifier.padding(8.dp),
-            contentPadding = PaddingValues(8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items(collectionList) { collection ->
-                ListItem(collectionList = collection, modifier = Modifier.clickable(onClick = { goToCollection(collection.id) }))
-            }
-            item {
-                AddListItem(Modifier.clickable(onClick = createCollection))
+        Column(modifier = Modifier.fillMaxSize()) {
+            TextInputField(
+                searchQuery,
+                onValueChange = onSearchQueryChange,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                placeholderText = "Search collections..."
+            )
+
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                modifier = Modifier.padding(8.dp),
+                contentPadding = PaddingValues(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(collectionList) { collection ->
+                    ListItem(collectionList = collection, modifier = Modifier.clickable(onClick = { goToCollection(collection.id) }))
+                }
+                item {
+                    AddListItem(Modifier.clickable(onClick = createCollection))
+                }
             }
         }
 
