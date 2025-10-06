@@ -53,7 +53,7 @@ fun DashboardScreen(
     onDismissCreate: () -> Unit = {},
     newCollectionTitle: String,
     updateNewCollectionTitle: (String) -> Unit,
-    submitNewCollection: () -> Unit
+    submitNewCollection: () -> Unit,
 ) {
     Box(modifier = modifier) {
         if (isLoading) {
@@ -210,20 +210,22 @@ fun CreateCollectionOverlay(
                             )
                         }
                     }
-                    TextInputField(
-                        title,
-                        onValueChange = updateTitle,
-                        modifier = Modifier.fillMaxWidth(),
-                        placeholderText = "Title"
-                    )
                     if (errorMessage != null) {
                         Text(
                             text = errorMessage,
                             color = MaterialTheme.colorScheme.error,
-                            style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier.fillMaxWidth()
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center,
+                            maxLines = 1
                         )
                     }
+                    TextInputField(
+                        title,
+                        onValueChange = updateTitle,
+                        modifier = Modifier.fillMaxWidth(),
+                        placeholderText = "Title",
+                    )
                     Button(
                         modifier = Modifier,
                         value = "create",

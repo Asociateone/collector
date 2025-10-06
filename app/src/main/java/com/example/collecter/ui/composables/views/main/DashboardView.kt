@@ -1,5 +1,6 @@
 package com.example.collecter.ui.composables.views.main
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
@@ -16,22 +17,21 @@ fun DashboardView(modifier: Modifier = Modifier, goToCollection : (Int) -> Unit)
     val collectionListViewModel: CollectionListViewModel = koinViewModel()
     val collectionViewModel: CollectionViewModel = koinViewModel()
 
-    val viewState = collectionListViewModel.uiState.collectAsState().value
+    val viewStateCollectionList = collectionListViewModel.uiState.collectAsState().value
     val viewStateCollection = collectionViewModel.uiState.collectAsState().value
     val showCreateOverlay = remember { mutableStateOf(false) }
     val newCollectionTitle = remember { mutableStateOf("") }
     val searchQuery = remember { mutableStateOf("") }
     val isCreatingInProgress = remember { mutableStateOf(false) }
-
-    val filteredCollections = if (viewState is UiState.Success) {
-        viewState.data.filter { collection ->
+    val createErrorMessage = remember { mutableStateOf("") }
+    val filteredCollections = if (viewStateCollectionList is UiState.Success) {
+        viewStateCollectionList.data.filter { collection ->
             collection.title.contains(searchQuery.value, ignoreCase = true)
         }
     } else {
         emptyList()
     }
 
-    // Handle creation state changes
     when (viewStateCollection) {
         is UiState.Success -> {
             if (isCreatingInProgress.value) {
@@ -42,6 +42,7 @@ fun DashboardView(modifier: Modifier = Modifier, goToCollection : (Int) -> Unit)
             }
         }
         is UiState.Error -> {
+            createErrorMessage.value = viewStateCollection.message
             if (isCreatingInProgress.value) {
                 isCreatingInProgress.value = false
             }
@@ -52,12 +53,12 @@ fun DashboardView(modifier: Modifier = Modifier, goToCollection : (Int) -> Unit)
     DashboardScreen(
         modifier = modifier,
         collectionList = filteredCollections,
-        isLoading = viewState is UiState.Loading,
+        isLoading = viewStateCollectionList is UiState.Loading,
         searchQuery = searchQuery.value,
         onSearchQueryChange = { searchQuery.value = it },
         isCreating = showCreateOverlay.value,
         isCreatingLoading = isCreatingInProgress.value && viewStateCollection is UiState.Loading,
-        createErrorMessage = if (viewStateCollection is UiState.Error && isCreatingInProgress.value) viewStateCollection.message else null,
+        createErrorMessage = createErrorMessage.value,
         goToCollection = goToCollection,
         createCollection = { showCreateOverlay.value = true },
         onDismissCreate = {
