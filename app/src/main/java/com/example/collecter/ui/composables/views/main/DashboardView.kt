@@ -1,6 +1,5 @@
 package com.example.collecter.ui.composables.views.main
 
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
