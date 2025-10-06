@@ -140,7 +140,7 @@ fun AddListItem(modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .background(MaterialTheme.colorScheme.surfaceContainerHigh, MaterialTheme.shapes.medium)
-            .padding(8.dp),
+            .padding(20.dp),
         contentAlignment = Alignment.Center
     ) {
         Column (
@@ -156,7 +156,8 @@ fun AddListItem(modifier: Modifier = Modifier) {
             Text(
                 text = "Create collection",
                 style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(top = 8.dp)
+                modifier = Modifier.padding(top = 10.dp),
+                textAlign = TextAlign.Center
             )
         }
     }
