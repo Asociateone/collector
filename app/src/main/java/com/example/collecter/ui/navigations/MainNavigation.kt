@@ -46,7 +46,7 @@ fun MainNavigation(modifier: Modifier = Modifier, navController: NavHostControll
                     title.value
                 )
             },
-            contentWindowInsets = WindowInsets(10.dp, 10.dp, 10.dp, 10.dp)
+            contentWindowInsets = WindowInsets(15.dp, 25.dp, 15.dp, 0.dp)
         ) { innerPadding ->
             NavHost(
                 modifier = modifier.padding(innerPadding),
