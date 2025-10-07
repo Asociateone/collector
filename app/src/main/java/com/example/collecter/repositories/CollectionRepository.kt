@@ -42,4 +42,14 @@ class CollectionRepository(val http: HTTP, val database: Database)
 
         return result
     }
+
+    suspend fun deleteCollection(collectionId: Int): UiState<Unit> {
+        val result = http.deleteCollection(collectionId)
+
+        if (result is UiState.Success) {
+            database.collectionDao().delete(collectionId)
+        }
+
+        return result
+    }
 }

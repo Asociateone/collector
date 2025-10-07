@@ -22,7 +22,7 @@ fun DashboardView(modifier: Modifier = Modifier, goToCollection : (Int) -> Unit)
     val newCollectionTitle = remember { mutableStateOf("") }
     val searchQuery = remember { mutableStateOf("") }
     val isCreatingInProgress = remember { mutableStateOf(false) }
-    val createErrorMessage = remember { mutableStateOf("") }
+    val createErrorMessage = remember { mutableStateOf<String?>(null) }
     val filteredCollections = if (viewStateCollectionList is UiState.Success) {
         viewStateCollectionList.data.filter { collection ->
             collection.title.contains(searchQuery.value, ignoreCase = true)
@@ -37,6 +37,7 @@ fun DashboardView(modifier: Modifier = Modifier, goToCollection : (Int) -> Unit)
                 newCollectionTitle.value = ""
                 showCreateOverlay.value = false
                 isCreatingInProgress.value = false
+                createErrorMessage.value = null
                 collectionListViewModel.getCollectionList()
             }
         }

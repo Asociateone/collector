@@ -46,7 +46,7 @@ fun MainNavigation(modifier: Modifier = Modifier, navController: NavHostControll
                     title.value
                 )
             },
-            contentWindowInsets = WindowInsets(15.dp, 25.dp, 15.dp, 0.dp)
+            contentWindowInsets = WindowInsets(1.dp, 1.dp, 1.dp, 1.dp)
         ) { innerPadding ->
             NavHost(
                 modifier = modifier.padding(innerPadding),
@@ -69,6 +69,10 @@ fun MainNavigation(modifier: Modifier = Modifier, navController: NavHostControll
                         Modifier.fillMaxSize(),
                         collectionId,
                         { title.value = it },
+                        onBackClick = {
+                            navController.popBackStack()
+                            navController.navigate(MainNavigation.Dashboard.name)
+                        }
                     )
                 }
                 composable(MainNavigation.More.name) {

@@ -10,6 +10,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.post
@@ -144,5 +145,19 @@ class HTTP (val preferenceData: PreferenceDataStore) {
         }
 
         return response.body<UiState.Success<Collection>>()
+    }
+
+    suspend fun deleteCollection(collectionId: Int): UiState<Unit> {
+        val response = client.delete("${mainUrl}/collections/${collectionId}") {
+            header("Content-Type", "application/json")
+            header("Accept", "application/json")
+            header("Authorization", getAuthHeader())
+        }
+
+        if (response.status.value >= 400) {
+            return response.body<UiState.Error>()
+        }
+
+        return response.body<UiState.Success<Unit>>()
     }
 }

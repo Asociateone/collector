@@ -1,6 +1,5 @@
 package com.example.collecter.ui.models
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.collecter.dataObjects.Collection
@@ -28,6 +27,14 @@ class CollectionViewModel (val collectionRepository: CollectionRepository) : Vie
         _uiState.value = UiState.Loading
         viewModelScope.launch(Dispatchers.IO) {
             _uiState.value = collectionRepository.createCollection(title)
+        }
+    }
+
+    fun deleteCollection(collectionId: Int)
+    {
+        _uiState.value = UiState.Loading
+        viewModelScope.launch {
+            collectionRepository.deleteCollection(collectionId)
         }
     }
 }
