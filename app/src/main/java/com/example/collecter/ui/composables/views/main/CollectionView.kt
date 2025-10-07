@@ -44,8 +44,8 @@ fun CollectionView(
                 toggleShowMore = {showMore.value = !showMore.value},
                 showMore = showMore.value,
                 onDeleteClick = {
-                    onBackClick()
                     collectionViewModel.deleteCollection(collection.data.id)
+                    onBackClick()
                 }
             )
         }
