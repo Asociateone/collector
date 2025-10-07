@@ -23,9 +23,17 @@ fun CollectionView(
 ) {
     val collectionViewModel : CollectionViewModel = koinViewModel()
     val showMore = remember { mutableStateOf(false) }
+    val isDeleting = remember { mutableStateOf(false) }
+
     LaunchedEffect(collectionId) {
         collectionId.toIntOrNull()?.let {
             collectionViewModel.getCollection(it)
+        }
+    }
+
+    LaunchedEffect(isDeleting.value, collectionViewModel.uiState.collectAsState().value) {
+        if (isDeleting.value && collectionViewModel.uiState.value !is UiState.Success) {
+            onBackClick()
         }
     }
 
@@ -44,8 +52,8 @@ fun CollectionView(
                 toggleShowMore = {showMore.value = !showMore.value},
                 showMore = showMore.value,
                 onDeleteClick = {
+                    isDeleting.value = true
                     collectionViewModel.deleteCollection(collection.data.id)
-                    onBackClick()
                 }
             )
         }

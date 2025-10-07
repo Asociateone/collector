@@ -1,6 +1,7 @@
 package com.example.collecter.ui.composables.views.main
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -15,6 +16,10 @@ import org.koin.androidx.compose.koinViewModel
 fun DashboardView(modifier: Modifier = Modifier, goToCollection : (Int) -> Unit) {
     val collectionListViewModel: CollectionListViewModel = koinViewModel()
     val collectionViewModel: CollectionViewModel = koinViewModel()
+
+    LaunchedEffect(Unit) {
+        collectionListViewModel.getCollectionList()
+    }
 
     val viewStateCollectionList = collectionListViewModel.uiState.collectAsState().value
     val viewStateCollection = collectionViewModel.uiState.collectAsState().value
