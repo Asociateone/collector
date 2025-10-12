@@ -1,5 +1,6 @@
 package com.example.collecter.repositories
 
+import android.util.Log
 import com.example.collecter.dataObjects.Collection
 import com.example.collecter.enums.WebState
 import com.example.collecter.services.Database
@@ -21,7 +22,8 @@ class CollectionRepository(val http: HTTP, val database: Database)
         val collections =  http.getCollectionList()
 
         if (collections is WebState.Success) {
-            database.collectionDao().upsert(collections.data)
+            // Use replaceAll to delete items not in the server list
+            database.collectionDao().replaceAll(collections.data)
             return WebState.Success(Unit)
         }
 
@@ -39,9 +41,12 @@ class CollectionRepository(val http: HTTP, val database: Database)
     }
 
     suspend fun deleteCollection(collectionId: Int): WebState<Unit> {
+        Log.d("CollectionRepository", "Deleting collection with ID: $collectionId")
         val result = http.deleteCollection(collectionId)
+        Log.d("CollectionRepository", "Delete result: $result")
 
         if (result is WebState.Success) {
+            Log.d("CollectionRepository", "Deleting from database")
             database.collectionDao().delete(collectionId)
         }
 

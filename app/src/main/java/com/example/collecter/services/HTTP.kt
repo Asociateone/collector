@@ -155,10 +155,21 @@ class HTTP (val preferenceData: PreferenceDataStore) {
             header("Authorization", getAuthHeader())
         }
 
+        Log.d("HTTP", "Delete response status: ${response.status.value}")
+
+        // 404 means already deleted, treat as success
+        if (response.status.value == 404) {
+            return WebState.Success(Unit)
+        }
+
         if (response.status.value >= 400) {
             return response.body<WebState.Error>()
         }
 
-        return response.body<WebState.Success<Unit>>()
+        if (response.status.value == 204 || (response.status.value >= 200 && response.status.value < 300)) {
+            return WebState.Success(Unit)
+        }
+
+        return WebState.Error("Unknown error")
     }
 }

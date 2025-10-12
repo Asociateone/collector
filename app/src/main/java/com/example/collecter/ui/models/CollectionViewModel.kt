@@ -1,5 +1,6 @@
 package com.example.collecter.ui.models
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.collecter.dataObjects.Collection
@@ -48,7 +49,8 @@ class CollectionViewModel (val collectionRepository: CollectionRepository) : Vie
     {
         _uiState.value = UiState.Loading
         viewModelScope.launch(Dispatchers.IO) {
-            when (val result = collectionRepository.deleteCollection(collectionId)) {
+            val result = collectionRepository.deleteCollection(collectionId)
+            when (result) {
                 is WebState.Success -> {
                     _uiState.value = UiState.Error("Deleted")
                 }
