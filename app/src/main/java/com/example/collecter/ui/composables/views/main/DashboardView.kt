@@ -18,6 +18,7 @@ fun DashboardView(modifier: Modifier = Modifier, goToCollection : (Int) -> Unit)
     val collectionViewModel: CollectionViewModel = koinViewModel()
 
     val viewStateCollectionList = collectionListViewModel.uiState.collectAsState().value
+    val isRefreshing = collectionListViewModel.isRefreshing.collectAsState().value
     val viewStateCollection = collectionViewModel.uiState.collectAsState().value
     val showCreateOverlay = remember { mutableStateOf(false) }
     val newCollectionTitle = remember { mutableStateOf("") }
@@ -55,6 +56,8 @@ fun DashboardView(modifier: Modifier = Modifier, goToCollection : (Int) -> Unit)
         modifier = modifier,
         collectionList = filteredCollections,
         isLoading = viewStateCollectionList is UiState.Loading,
+        isRefreshing = isRefreshing,
+        onRefresh = { collectionListViewModel.refreshCollections() },
         searchQuery = searchQuery.value,
         onSearchQueryChange = { searchQuery.value = it },
         isCreating = showCreateOverlay.value,

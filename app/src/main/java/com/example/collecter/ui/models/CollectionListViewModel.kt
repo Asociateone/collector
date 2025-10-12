@@ -13,8 +13,10 @@ import kotlinx.coroutines.launch
 class CollectionListViewModel (val collectionRepository: CollectionRepository) : ViewModel ()
 {
     private val _uiState = MutableStateFlow<UiState<List<Collection>>>(UiState.Loading)
+    private val _isRefreshing = MutableStateFlow(false)
 
     val uiState: StateFlow<UiState<List<Collection>>> = _uiState
+    val isRefreshing: StateFlow<Boolean> = _isRefreshing
 
     init {
         // Observe database changes
@@ -34,6 +36,10 @@ class CollectionListViewModel (val collectionRepository: CollectionRepository) :
     }
 
     fun refreshCollections(): Unit {
-        syncCollections()
+        viewModelScope.launch(Dispatchers.IO) {
+            _isRefreshing.value = true
+            collectionRepository.syncCollections()
+            _isRefreshing.value = false
+        }
     }
 }
