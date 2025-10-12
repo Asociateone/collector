@@ -1,52 +1,47 @@
 package com.example.collecter.repositories
 
 import com.example.collecter.dataObjects.Collection
-import com.example.collecter.enums.UiState
+import com.example.collecter.enums.WebState
 import com.example.collecter.services.Database
 import com.example.collecter.services.HTTP
+import kotlinx.coroutines.flow.Flow
 
 class CollectionRepository(val http: HTTP, val database: Database)
 {
-    suspend fun getCollections(): UiState<List<Collection>>
+    fun getCollectionListFlow(): Flow<List<Collection>> {
+        return database.collectionDao().getAll()
+    }
+
+    fun getCollectionFlow(collectionId: Int): Flow<Collection> {
+        return database.collectionDao().getById(collectionId)
+    }
+
+    suspend fun syncCollections(): WebState<Unit>
     {
         val collections =  http.getCollectionList()
 
-        if (collections is UiState.Success) {
+        if (collections is WebState.Success) {
             database.collectionDao().insert(collections.data)
+            return WebState.Success(Unit)
         }
 
-        return collections
+        return WebState.Error(collections.toString())
     }
 
-    suspend fun getCollection(collectionId: Int): UiState<Collection> {
-        // Try local database first
-        val cached = database.collectionDao().getById(collectionId)
-        if (cached != null) {
-            return UiState.Success(cached)
-        }
-
-        // Fallback to network
-        val result = http.getCollection(collectionId)
-        if (result is UiState.Success) {
-            database.collectionDao().insert(listOf(result.data))
-        }
-        return result
-    }
-
-    suspend fun createCollection(title: String): UiState<Collection> {
+    suspend fun createCollection(title: String): WebState<Collection> {
         val result = http.createCollection(title)
 
-        if (result is UiState.Success) {
+        if (result is WebState.Success) {
             database.collectionDao().insert(listOf(result.data))
         }
 
         return result
     }
 
-    suspend fun deleteCollection(collectionId: Int): UiState<Unit> {
+    suspend fun deleteCollection(collectionId: Int): WebState<Unit> {
         val result = http.deleteCollection(collectionId)
 
-        if (result is UiState.Success) {
+        if (result is WebState.Success) {
             database.collectionDao().delete(collectionId)
         }
 

@@ -1,6 +1,5 @@
 package com.example.collecter.ui.models
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.collecter.dataObjects.Collection
@@ -16,14 +15,25 @@ class CollectionListViewModel (val collectionRepository: CollectionRepository) :
     private val _uiState = MutableStateFlow<UiState<List<Collection>>>(UiState.Loading)
 
     val uiState: StateFlow<UiState<List<Collection>>> = _uiState
+
     init {
-        getCollectionList()
+        // Observe database changes
+        viewModelScope.launch(Dispatchers.IO) {
+            collectionRepository.getCollectionListFlow().collect { collections ->
+                _uiState.value = UiState.Success(collections)
+            }
+        }
+        // Sync with server
+        syncCollections()
     }
 
-    fun getCollectionList(): Unit {
-        _uiState.value = UiState.Loading
+    fun syncCollections(): Unit {
         viewModelScope.launch(Dispatchers.IO) {
-            _uiState.value = collectionRepository.getCollections()
+            collectionRepository.syncCollections()
         }
+    }
+
+    fun refreshCollections(): Unit {
+        syncCollections()
     }
 }

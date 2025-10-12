@@ -17,10 +17,6 @@ fun DashboardView(modifier: Modifier = Modifier, goToCollection : (Int) -> Unit)
     val collectionListViewModel: CollectionListViewModel = koinViewModel()
     val collectionViewModel: CollectionViewModel = koinViewModel()
 
-    LaunchedEffect(Unit) {
-        collectionListViewModel.getCollectionList()
-    }
-
     val viewStateCollectionList = collectionListViewModel.uiState.collectAsState().value
     val viewStateCollection = collectionViewModel.uiState.collectAsState().value
     val showCreateOverlay = remember { mutableStateOf(false) }
@@ -43,7 +39,7 @@ fun DashboardView(modifier: Modifier = Modifier, goToCollection : (Int) -> Unit)
                 showCreateOverlay.value = false
                 isCreatingInProgress.value = false
                 createErrorMessage.value = null
-                collectionListViewModel.getCollectionList()
+                collectionListViewModel.uiState
             }
         }
         is UiState.Error -> {

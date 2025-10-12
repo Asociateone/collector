@@ -6,6 +6,7 @@ import com.example.collecter.dataObjects.Collection
 import com.example.collecter.dataObjects.User
 import com.example.collecter.enums.DataStoreKeys
 import com.example.collecter.enums.UiState
+import com.example.collecter.enums.WebState
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.HttpTimeout
@@ -58,7 +59,7 @@ class HTTP (val preferenceData: PreferenceDataStore) {
      * @param email
      * @param password
      */
-    suspend fun signIn(email: String, password: String): UiState<User> {
+    suspend fun signIn(email: String, password: String): WebState<User> {
         val response = client.post("${mainUrl}/login") {
             header("Content-Type", "application/json")
             header("Accept", "application/json")
@@ -66,11 +67,11 @@ class HTTP (val preferenceData: PreferenceDataStore) {
         }
 
         if (response.status.value >= 400) {
-            return response.body<UiState.Error>()
+            return response.body<WebState.Error>()
         }
 
         val data = response.body<ApiResource<User>>()
-        return UiState.Success(data.data)
+        return WebState.Success(data.data)
     }
 
     suspend fun signUp(
@@ -78,7 +79,7 @@ class HTTP (val preferenceData: PreferenceDataStore) {
         username: String,
         password: String,
         passwordConfirmation: String
-    ): UiState<User> {
+    ): WebState<User> {
         val response = client.post("${mainUrl}/signup") {
             header("Content-Type", "application/json")
             header("Accept", "application/json")
@@ -91,7 +92,7 @@ class HTTP (val preferenceData: PreferenceDataStore) {
         }
 
         if (response.status.value >= 400) {
-            return response.body<UiState.Error>()
+            return response.body<WebState.Error>()
         }
 
         if(response.status.value >= 200 && response.status.value <= 299) {
@@ -99,10 +100,10 @@ class HTTP (val preferenceData: PreferenceDataStore) {
             preferenceData.update(DataStoreKeys.API_KEY, data.data.token)
         }
 
-        return UiState.Success(response.body())
+        return WebState.Success(response.body())
     }
 
-    suspend fun getCollectionList(): UiState<List<Collection>> {
+    suspend fun getCollectionList(): WebState<List<Collection>> {
         val response = client.get("${mainUrl}/collections") {
             header("Content-Type", "application/json")
             header("Accept", "application/json")
@@ -110,13 +111,13 @@ class HTTP (val preferenceData: PreferenceDataStore) {
         }
 
         if (response.status.value >= 400) {
-            return response.body<UiState.Error>()
+            return response.body<WebState.Error>()
         }
 
-        return response.body<UiState.Success<List<Collection>>>()
+        return response.body<WebState.Success<List<Collection>>>()
     }
 
-    suspend fun getCollection(collectionId: Int): UiState<Collection> {
+    suspend fun getCollection(collectionId: Int): WebState<Collection> {
         val response = client.get("${mainUrl}/collections/${collectionId}") {
             header("Content-Type", "application/json")
             header("Accept", "application/json")
@@ -124,13 +125,13 @@ class HTTP (val preferenceData: PreferenceDataStore) {
         }
 
         if (response.status.value >= 400) {
-            return response.body<UiState.Error>()
+            return response.body<WebState.Error>()
         }
 
-        return response.body<UiState.Success<Collection>>()
+        return response.body<WebState.Success<Collection>>()
     }
 
-    suspend fun createCollection(title: String): UiState<Collection> {
+    suspend fun createCollection(title: String): WebState<Collection> {
         val response = client.post("${mainUrl}/collections") {
             header("Content-Type", "application/json")
             header("Accept", "application/json")
@@ -141,13 +142,13 @@ class HTTP (val preferenceData: PreferenceDataStore) {
         }
 
         if (response.status.value >= 400) {
-            return response.body<UiState.Error>()
+            return response.body<WebState.Error>()
         }
 
-        return response.body<UiState.Success<Collection>>()
+        return response.body<WebState.Success<Collection>>()
     }
 
-    suspend fun deleteCollection(collectionId: Int): UiState<Unit> {
+    suspend fun deleteCollection(collectionId: Int): WebState<Unit> {
         val response = client.delete("${mainUrl}/collections/${collectionId}") {
             header("Content-Type", "application/json")
             header("Accept", "application/json")
@@ -155,9 +156,9 @@ class HTTP (val preferenceData: PreferenceDataStore) {
         }
 
         if (response.status.value >= 400) {
-            return response.body<UiState.Error>()
+            return response.body<WebState.Error>()
         }
 
-        return response.body<UiState.Success<Unit>>()
+        return response.body<WebState.Success<Unit>>()
     }
 }

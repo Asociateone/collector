@@ -6,6 +6,7 @@ import com.example.collecter.dataObjects.Collection
 import com.example.collecter.enums.UiState
 import com.example.collecter.repositories.CollectionRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -16,17 +17,19 @@ class CollectionViewModel (val collectionRepository: CollectionRepository) : Vie
 
     val uiState: StateFlow<UiState<Collection>> = _uiState
 
-    fun getCollection(id: Int): Unit {
+    fun getCollection(id: Int)  {
         _uiState.value = UiState.Loading
         viewModelScope.launch(Dispatchers.IO) {
-            _uiState.value = collectionRepository.getCollection(id)
+            collectionRepository.getCollectionFlow(id).collect { collection ->
+                _uiState.value = UiState.Success(collection)
+            }
         }
     }
 
     fun createCollection(title: String) {
         _uiState.value = UiState.Loading
         viewModelScope.launch(Dispatchers.IO) {
-            _uiState.value = collectionRepository.createCollection(title)
+//            _uiState.value = collectionRepository.createCollection(title)
         }
     }
 
