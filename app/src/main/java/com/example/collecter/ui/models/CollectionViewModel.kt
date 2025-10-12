@@ -47,8 +47,18 @@ class CollectionViewModel (val collectionRepository: CollectionRepository) : Vie
     fun deleteCollection(collectionId: Int)
     {
         _uiState.value = UiState.Loading
-        viewModelScope.launch {
-            collectionRepository.deleteCollection(collectionId)
+        viewModelScope.launch(Dispatchers.IO) {
+            when (val result = collectionRepository.deleteCollection(collectionId)) {
+                is WebState.Success -> {
+                    _uiState.value = UiState.Error("Deleted")
+                }
+                is WebState.Error -> {
+                    _uiState.value = UiState.Error(result.message, result.errors)
+                }
+                else -> {
+                    _uiState.value = UiState.Error("Unknown error")
+                }
+            }
         }
     }
 }
