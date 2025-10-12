@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.collecter.dataObjects.Collection
 import com.example.collecter.enums.UiState
+import com.example.collecter.enums.WebState
 import com.example.collecter.repositories.CollectionRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -29,7 +30,17 @@ class CollectionViewModel (val collectionRepository: CollectionRepository) : Vie
     fun createCollection(title: String) {
         _uiState.value = UiState.Loading
         viewModelScope.launch(Dispatchers.IO) {
-//            _uiState.value = collectionRepository.createCollection(title)
+            when (val result = collectionRepository.createCollection(title)) {
+                is WebState.Success -> {
+                    _uiState.value = UiState.Success(result.data)
+                }
+                is WebState.Error -> {
+                    _uiState.value = UiState.Error(result.message, result.errors)
+                }
+                else -> {
+                    _uiState.value = UiState.Error("Unknown error")
+                }
+            }
         }
     }
 

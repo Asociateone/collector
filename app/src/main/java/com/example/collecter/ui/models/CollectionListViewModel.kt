@@ -19,13 +19,11 @@ class CollectionListViewModel (val collectionRepository: CollectionRepository) :
     val isRefreshing: StateFlow<Boolean> = _isRefreshing
 
     init {
-        // Observe database changes
         viewModelScope.launch(Dispatchers.IO) {
             collectionRepository.getCollectionListFlow().collect { collections ->
                 _uiState.value = UiState.Success(collections)
             }
         }
-        // Sync with server
         syncCollections()
     }
 

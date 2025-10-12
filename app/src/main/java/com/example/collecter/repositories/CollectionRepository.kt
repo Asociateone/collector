@@ -21,7 +21,7 @@ class CollectionRepository(val http: HTTP, val database: Database)
         val collections =  http.getCollectionList()
 
         if (collections is WebState.Success) {
-            database.collectionDao().insert(collections.data)
+            database.collectionDao().upsert(collections.data)
             return WebState.Success(Unit)
         }
 
@@ -32,7 +32,7 @@ class CollectionRepository(val http: HTTP, val database: Database)
         val result = http.createCollection(title)
 
         if (result is WebState.Success) {
-            database.collectionDao().insert(listOf(result.data))
+            database.collectionDao().upsert(listOf(result.data))
         }
 
         return result
