@@ -30,7 +30,13 @@ import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
@@ -58,10 +64,19 @@ fun CollectionScreen(
     isLoading: Boolean,
     isGamesLoading: Boolean,
     onGameClick: (Int) -> Unit,
-    onAddGame: () -> Unit,
+    onAddGame: (String) -> Unit,
     onToggleStatus: (Int, String) -> Unit,
     onRemoveGame: (Int) -> Unit
 ) {
+    var selectedTabIndex by remember { mutableIntStateOf(0) }
+    val tabs = listOf("Want", "Have")
+    val currentStatus = if (selectedTabIndex == 0) "wanted" else "have"
+
+    // Filter games based on selected tab
+    val filteredGames = games?.filter { game ->
+        game.status == currentStatus
+    }
+
     Box(modifier = modifier.fillMaxSize()) {
         if (isLoading) {
             LoadingView(Modifier.fillMaxSize())
@@ -133,15 +148,40 @@ fun CollectionScreen(
                     }
                 }
 
+                // Tabs for Want/Have
+                TabRow(
+                    selectedTabIndex = selectedTabIndex,
+                    modifier = Modifier.fillMaxWidth(),
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    contentColor = MaterialTheme.colorScheme.primary
+                ) {
+                    tabs.forEachIndexed { index, title ->
+                        Tab(
+                            selected = selectedTabIndex == index,
+                            onClick = { selectedTabIndex = index },
+                            text = {
+                                Text(
+                                    text = title,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = if (selectedTabIndex == index)
+                                        androidx.compose.ui.text.font.FontWeight.Bold
+                                    else
+                                        androidx.compose.ui.text.font.FontWeight.Normal
+                                )
+                            }
+                        )
+                    }
+                }
+
                 // Games List
                 if (isGamesLoading) {
                     LoadingView(Modifier.fillMaxSize())
-                } else if (games != null && games.isNotEmpty()) {
+                } else if (filteredGames != null && filteredGames.isNotEmpty()) {
                     LazyColumn(
                         contentPadding = PaddingValues(16.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        items(games) { game ->
+                        items(filteredGames) { game ->
                             CollectionGameItem(
                                 game = game,
                                 onGameClick = { onGameClick(game.id) },
@@ -167,7 +207,7 @@ fun CollectionScreen(
 
             // FAB to add games - Enhanced gaming style
             FloatingActionButton(
-                onClick = onAddGame,
+                onClick = { onAddGame(currentStatus) },
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(24.dp)

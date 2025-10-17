@@ -19,9 +19,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Clear
@@ -145,7 +143,8 @@ fun GameBrowseScreen(
                     )
                     ExposedDropdownMenu(
                         expanded = genreExpanded,
-                        onDismissRequest = { genreExpanded = false }
+                        onDismissRequest = { genreExpanded = false },
+                        modifier = Modifier.heightIn(max = 400.dp)
                     ) {
                         DropdownMenuItem(
                             text = { Text("All Genres") },
@@ -187,7 +186,8 @@ fun GameBrowseScreen(
                     )
                     ExposedDropdownMenu(
                         expanded = platformExpanded,
-                        onDismissRequest = { platformExpanded = false }
+                        onDismissRequest = { platformExpanded = false },
+                        modifier = Modifier.heightIn(max = 400.dp)
                     ) {
                         DropdownMenuItem(
                             text = { Text("All Platforms") },

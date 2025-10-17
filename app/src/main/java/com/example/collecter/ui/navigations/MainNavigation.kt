@@ -73,20 +73,26 @@ fun MainNavigation(modifier: Modifier = Modifier, navController: NavHostControll
                         onGameClick = { gameId ->
                             // Navigate to game detail if implemented
                         },
-                        onAddGame = {
-                            navController.navigate("${MainNavigation.GameBrowse.name}/$collectionId")
+                        onAddGame = { status ->
+                            navController.navigate("${MainNavigation.GameBrowse.name}/$collectionId/$status")
                         }
                     )
                 }
-                composable("${MainNavigation.GameBrowse.name}/{collectionId}") {
+                composable("${MainNavigation.GameBrowse.name}/{collectionId}/{status}") {
                     title.value = "Browse Games"
                     val collectionId =
                         navController.currentBackStackEntry?.arguments?.getString("collectionId")
+                    val status =
+                        navController.currentBackStackEntry?.arguments?.getString("status") ?: "wanted"
                     GameBrowseView(
                         Modifier.fillMaxSize(),
                         collectionId,
+                        status,
                         onGameClick = { gameId ->
                             // Navigate to game detail if implemented
+                        },
+                        onGameAdded = {
+                            navController.popBackStack()
                         }
                     )
                 }

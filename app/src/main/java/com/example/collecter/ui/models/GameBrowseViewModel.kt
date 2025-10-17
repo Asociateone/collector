@@ -13,6 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class GameBrowseViewModel(
     val gameRepository: GameRepository,
@@ -140,15 +141,17 @@ class GameBrowseViewModel(
         }
     }
 
-    fun addGameToCollection(collectionId: Int, gameId: Int, onSuccess: () -> Unit = {}, onError: (String) -> Unit = {}) {
+    fun addGameToCollection(collectionId: Int, gameId: Int, status: String = "wanted", onSuccess: () -> Unit = {}, onError: (String) -> Unit = {}) {
         viewModelScope.launch(Dispatchers.IO) {
-            val result = collectionRepository.addGameToCollection(collectionId, gameId, "wanted")
-            if (result is UiState.Success) {
-                android.util.Log.d("GameBrowseViewModel", "Game added to collection successfully")
-                onSuccess()
-            } else if (result is UiState.Error) {
-                android.util.Log.e("GameBrowseViewModel", "Failed to add game: ${result.message}")
-                onError(result.message)
+            val result = collectionRepository.addGameToCollection(collectionId, gameId, status)
+            withContext(Dispatchers.Main) {
+                if (result is UiState.Success) {
+                    android.util.Log.d("GameBrowseViewModel", "Game added to collection successfully")
+                    onSuccess()
+                } else if (result is UiState.Error) {
+                    android.util.Log.e("GameBrowseViewModel", "Failed to add game: ${result.message}")
+                    onError(result.message)
+                }
             }
         }
     }

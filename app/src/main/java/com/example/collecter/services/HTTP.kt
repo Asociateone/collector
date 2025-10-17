@@ -25,6 +25,13 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.first
 import kotlinx.serialization.json.Json
 import kotlin.collections.mapOf
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class AddGameToCollectionRequest(
+    val game_id: Int,
+    val status: String
+)
 
 @OptIn(InternalAPI::class)
 class HTTP (val preferenceData: PreferenceDataStore) {
@@ -254,9 +261,9 @@ class HTTP (val preferenceData: PreferenceDataStore) {
             header("Accept", "application/json")
             header("Authorization", getAuthHeader())
             header("X-Device-Type", "mobile")
-            setBody(mapOf(
-                "game_id" to gameId,
-                "status" to status
+            setBody(AddGameToCollectionRequest(
+                game_id = gameId,
+                status = status
             ))
         }
 

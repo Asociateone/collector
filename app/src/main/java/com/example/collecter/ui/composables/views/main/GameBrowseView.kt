@@ -13,7 +13,9 @@ import org.koin.androidx.compose.koinViewModel
 fun GameBrowseView(
     modifier: Modifier = Modifier,
     collectionId: String?,
-    onGameClick: (Int) -> Unit = {}
+    status: String = "wanted",
+    onGameClick: (Int) -> Unit = {},
+    onGameAdded: () -> Unit = {}
 ) {
     val gameBrowseViewModel: GameBrowseViewModel = koinViewModel()
     val context = LocalContext.current
@@ -41,8 +43,11 @@ fun GameBrowseView(
                 gameBrowseViewModel.addGameToCollection(
                     collectionId.toInt(),
                     gameId,
+                    status,
                     onSuccess = {
-                        Toast.makeText(context, "Game added to wanted list!", Toast.LENGTH_SHORT).show()
+                        val listName = if (status == "wanted") "want" else "have"
+                        Toast.makeText(context, "Game added to $listName list!", Toast.LENGTH_SHORT).show()
+                        onGameAdded()
                     },
                     onError = { message ->
                         Toast.makeText(context, "Error: $message", Toast.LENGTH_SHORT).show()

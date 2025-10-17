@@ -18,7 +18,7 @@ fun CollectionView(
     collectionId: String,
     collectionTitle: (String) -> Unit,
     onGameClick: (Int) -> Unit = {},
-    onAddGame: () -> Unit = {}
+    onAddGame: (String) -> Unit = {}
 ) {
     val collectionViewModel : CollectionViewModel = koinViewModel()
     val collectionState = collectionViewModel.uiState.collectAsState().value
@@ -52,7 +52,7 @@ fun CollectionView(
                 isLoading = false,
                 isGamesLoading = gamesState is UiState.Loading,
                 onGameClick = onGameClick,
-                onAddGame = onAddGame,
+                onAddGame = { status -> onAddGame(status) },
                 onToggleStatus = { gameId, newStatus ->
                     collectionId.toIntOrNull()?.let { collId ->
                         collectionViewModel.updateGameStatus(collId, gameId, newStatus)
