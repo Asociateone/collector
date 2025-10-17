@@ -3,71 +3,132 @@ package com.example.collecter.ui.models
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.collecter.dataObjects.Game
-import com.example.collecter.dataObjects.PaginatedResponse
+import com.example.collecter.dataObjects.Genre
+import com.example.collecter.dataObjects.Platform
 import com.example.collecter.enums.UiState
 import com.example.collecter.repositories.GameRepository
+import com.example.collecter.services.HTTP
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class GameBrowseViewModel(val gameRepository: GameRepository) : ViewModel() {
-    private val _uiState = MutableStateFlow<UiState<PaginatedResponse<Game>>>(UiState.Loading)
-    val uiState: StateFlow<UiState<PaginatedResponse<Game>>> = _uiState
+class GameBrowseViewModel(
+    val gameRepository: GameRepository,
+    val http: HTTP
+) : ViewModel() {
+    // Game list with infinite scroll support
+    private val _games = MutableStateFlow<List<Game>>(emptyList())
+    val games: StateFlow<List<Game>> = _games
 
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
+
+    private val _isLoadingMore = MutableStateFlow(false)
+    val isLoadingMore: StateFlow<Boolean> = _isLoadingMore
+
+    // Filter states
     private val _searchQuery = MutableStateFlow<String?>(null)
     val searchQuery: StateFlow<String?> = _searchQuery
 
-    private val _genreFilter = MutableStateFlow<Int?>(null)
-    private val _platformFilter = MutableStateFlow<Int?>(null)
+    private val _selectedGenre = MutableStateFlow<Genre?>(null)
+    val selectedGenre: StateFlow<Genre?> = _selectedGenre
 
+    private val _selectedPlatform = MutableStateFlow<Platform?>(null)
+    val selectedPlatform: StateFlow<Platform?> = _selectedPlatform
+
+    // Available filters
+    private val _genres = MutableStateFlow<List<Genre>>(emptyList())
+    val genres: StateFlow<List<Genre>> = _genres
+
+    private val _platforms = MutableStateFlow<List<Platform>>(emptyList())
+    val platforms: StateFlow<List<Platform>> = _platforms
+
+    // Pagination
     private val _currentPage = MutableStateFlow(1)
     val currentPage: StateFlow<Int> = _currentPage
 
+    private val _hasMorePages = MutableStateFlow(true)
+    val hasMorePages: StateFlow<Boolean> = _hasMorePages
+
     init {
-        browseGames()
+        loadFilters()
+        loadGames()
     }
 
-    fun browseGames(
-        search: String? = _searchQuery.value,
-        genre: Int? = _genreFilter.value,
-        platform: Int? = _platformFilter.value,
-        page: Int = _currentPage.value
-    ) {
-        _uiState.value = UiState.Loading
-        _searchQuery.value = search
-        _genreFilter.value = genre
-        _platformFilter.value = platform
-        _currentPage.value = page
-
+    private fun loadFilters() {
         viewModelScope.launch(Dispatchers.IO) {
-            _uiState.value = gameRepository.browseGames(search, genre, platform, page)
+            // Load genres
+            val genresResult = http.getGenres()
+            if (genresResult is UiState.Success) {
+                _genres.value = genresResult.data
+            }
+
+            // Load platforms
+            val platformsResult = http.getPlatforms()
+            if (platformsResult is UiState.Success) {
+                _platforms.value = platformsResult.data
+            }
+        }
+    }
+
+    private fun loadGames(append: Boolean = false) {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (append) {
+                _isLoadingMore.value = true
+            } else {
+                _isLoading.value = true
+                _games.value = emptyList()
+                _currentPage.value = 1
+            }
+
+            val result = gameRepository.browseGames(
+                search = _searchQuery.value,
+                genre = _selectedGenre.value?.id,
+                platform = _selectedPlatform.value?.id,
+                page = _currentPage.value
+            )
+
+            if (result is UiState.Success) {
+                if (append) {
+                    _games.value = _games.value + result.data.data
+                } else {
+                    _games.value = result.data.data
+                }
+                _hasMorePages.value = _currentPage.value < result.data.meta.lastPage
+            }
+
+            _isLoading.value = false
+            _isLoadingMore.value = false
         }
     }
 
     fun setSearchQuery(query: String?) {
-        browseGames(search = query, page = 1)
+        _searchQuery.value = query
+        loadGames()
     }
 
-    fun setGenreFilter(genre: Int?) {
-        browseGames(genre = genre, page = 1)
+    fun setGenreFilter(genre: Genre?) {
+        _selectedGenre.value = genre
+        loadGames()
     }
 
-    fun setPlatformFilter(platform: Int?) {
-        browseGames(platform = platform, page = 1)
+    fun setPlatformFilter(platform: Platform?) {
+        _selectedPlatform.value = platform
+        loadGames()
     }
 
-    fun loadPage(page: Int) {
-        browseGames(page = page)
+    fun clearFilters() {
+        _searchQuery.value = null
+        _selectedGenre.value = null
+        _selectedPlatform.value = null
+        loadGames()
     }
 
-    fun nextPage() {
-        loadPage(_currentPage.value + 1)
-    }
-
-    fun previousPage() {
-        if (_currentPage.value > 1) {
-            loadPage(_currentPage.value - 1)
+    fun loadNextPage() {
+        if (_hasMorePages.value && !_isLoadingMore.value) {
+            _currentPage.value += 1
+            loadGames(append = true)
         }
     }
 }

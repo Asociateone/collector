@@ -298,4 +298,36 @@ class HTTP (val preferenceData: PreferenceDataStore) {
 
         return UiState.Success(Unit)
     }
+
+    // Genre endpoints
+    suspend fun getGenres(): UiState<List<com.example.collecter.dataObjects.Genre>> {
+        val response = client.get("${mainUrl}/genres") {
+            header("Content-Type", "application/json")
+            header("Accept", "application/json")
+            header("Authorization", getAuthHeader())
+        }
+
+        if (response.status.value >= 400) {
+            return response.body<UiState.Error>()
+        }
+
+        val data = response.body<ApiResource<List<com.example.collecter.dataObjects.Genre>>>()
+        return UiState.Success(data.data)
+    }
+
+    // Platform endpoints
+    suspend fun getPlatforms(): UiState<List<com.example.collecter.dataObjects.Platform>> {
+        val response = client.get("${mainUrl}/platforms") {
+            header("Content-Type", "application/json")
+            header("Accept", "application/json")
+            header("Authorization", getAuthHeader())
+        }
+
+        if (response.status.value >= 400) {
+            return response.body<UiState.Error>()
+        }
+
+        val data = response.body<ApiResource<List<com.example.collecter.dataObjects.Platform>>>()
+        return UiState.Success(data.data)
+    }
 }

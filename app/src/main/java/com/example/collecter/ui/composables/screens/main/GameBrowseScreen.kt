@@ -7,24 +7,33 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
@@ -35,30 +44,52 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.collecter.R
 import com.example.collecter.dataObjects.Game
-import com.example.collecter.dataObjects.PaginatedResponse
+import com.example.collecter.dataObjects.Genre
+import com.example.collecter.dataObjects.Platform
 import com.example.collecter.ui.composables.partials.formFields.TextInputField
 import com.example.collecter.ui.composables.views.auth.LoadingView
 
 @Composable
 fun GameBrowseScreen(
     modifier: Modifier = Modifier,
-    games: PaginatedResponse<Game>?,
+    games: List<Game>,
     isLoading: Boolean,
+    isLoadingMore: Boolean,
     searchQuery: String,
     onSearchQueryChange: (String) -> Unit,
     onGameClick: (Int) -> Unit,
-    onNextPage: () -> Unit,
-    onPreviousPage: () -> Unit,
-    currentPage: Int,
-    lastPage: Int
+    onLoadMore: () -> Unit,
+    genres: List<Genre>,
+    platforms: List<Platform>,
+    selectedGenre: Genre?,
+    selectedPlatform: Platform?,
+    onGenreSelected: (Genre?) -> Unit,
+    onPlatformSelected: (Platform?) -> Unit,
+    onClearFilters: () -> Unit
 ) {
+    val gridState = rememberLazyGridState()
+
+    // Detect when user reaches bottom for infinite scroll
+    val shouldLoadMore = remember {
+        derivedStateOf {
+            val lastVisibleItem = gridState.layoutInfo.visibleItemsInfo.lastOrNull()
+            val totalItems = gridState.layoutInfo.totalItemsCount
+            lastVisibleItem != null && lastVisibleItem.index >= totalItems - 4
+        }
+    }
+
+    LaunchedEffect(shouldLoadMore.value) {
+        if (shouldLoadMore.value && !isLoadingMore && !isLoading && games.isNotEmpty()) {
+            onLoadMore()
+        }
+    }
+
     Column(modifier = modifier.fillMaxSize()) {
         // Search bar
         TextInputField(
@@ -70,43 +101,146 @@ fun GameBrowseScreen(
             placeholderText = "Search games..."
         )
 
-        if (isLoading) {
-            LoadingView(Modifier.fillMaxSize())
-        } else if (games != null) {
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(horizontal = 8.dp),
-                contentPadding = PaddingValues(8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(games.data) { game ->
-                    GameCard(
-                        game = game,
-                        onClick = { onGameClick(game.id) }
-                    )
+        // Filter chips section
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+        ) {
+            // Genre filters
+            if (genres.isNotEmpty()) {
+                Text(
+                    text = "Genres",
+                    style = MaterialTheme.typography.labelLarge,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.padding(bottom = 12.dp)
+                ) {
+                    items(genres) { genre ->
+                        FilterChip(
+                            selected = selectedGenre?.id == genre.id,
+                            onClick = {
+                                if (selectedGenre?.id == genre.id) {
+                                    onGenreSelected(null)
+                                } else {
+                                    onGenreSelected(genre)
+                                }
+                            },
+                            label = { Text(genre.name) },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
+                                selectedLabelColor = Color.White
+                            )
+                        )
+                    }
                 }
             }
 
-            // Pagination controls
-            PaginationControls(
-                currentPage = currentPage,
-                lastPage = lastPage,
-                onPreviousPage = onPreviousPage,
-                onNextPage = onNextPage,
-                modifier = Modifier.padding(16.dp)
-            )
-        } else {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
+            // Platform filters
+            if (platforms.isNotEmpty()) {
                 Text(
-                    "No games found",
-                    style = MaterialTheme.typography.titleMedium
+                    text = "Platforms",
+                    style = MaterialTheme.typography.labelLarge,
+                    modifier = Modifier.padding(bottom = 8.dp)
                 )
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.padding(bottom = 12.dp)
+                ) {
+                    items(platforms) { platform ->
+                        FilterChip(
+                            selected = selectedPlatform?.id == platform.id,
+                            onClick = {
+                                if (selectedPlatform?.id == platform.id) {
+                                    onPlatformSelected(null)
+                                } else {
+                                    onPlatformSelected(platform)
+                                }
+                            },
+                            label = { Text(platform.name) },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.8f),
+                                selectedLabelColor = Color.White
+                            )
+                        )
+                    }
+                }
+            }
+
+            // Clear filters button
+            if (selectedGenre != null || selectedPlatform != null || searchQuery.isNotBlank()) {
+                FilterChip(
+                    selected = false,
+                    onClick = onClearFilters,
+                    label = { Text("Clear All Filters") },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Filled.Clear,
+                            contentDescription = "Clear filters",
+                            modifier = Modifier.size(18.dp)
+                        )
+                    },
+                    colors = FilterChipDefaults.filterChipColors(
+                        containerColor = MaterialTheme.colorScheme.errorContainer,
+                        labelColor = MaterialTheme.colorScheme.onErrorContainer
+                    ),
+                    modifier = Modifier.padding(bottom = 12.dp)
+                )
+            }
+        }
+
+        // Games grid
+        Box(modifier = Modifier.weight(1f)) {
+            when {
+                isLoading && games.isEmpty() -> {
+                    LoadingView(Modifier.fillMaxSize())
+                }
+                games.isEmpty() && !isLoading -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            "No games found",
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                    }
+                }
+                else -> {
+                    LazyVerticalGrid(
+                        state = gridState,
+                        columns = GridCells.Fixed(2),
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(games) { game ->
+                            GameCard(
+                                game = game,
+                                onClick = { onGameClick(game.id) }
+                            )
+                        }
+
+                        // Loading indicator at the bottom
+                        if (isLoadingMore) {
+                            item {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(32.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -219,94 +353,3 @@ fun GameCard(
     }
 }
 
-@Composable
-fun PaginationControls(
-    currentPage: Int,
-    lastPage: Int,
-    onPreviousPage: () -> Unit,
-    onNextPage: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Card(
-                modifier = Modifier.shadow(4.dp, RoundedCornerShape(12.dp)),
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = if (currentPage > 1)
-                        MaterialTheme.colorScheme.primary
-                    else
-                        MaterialTheme.colorScheme.surfaceVariant
-                )
-            ) {
-                IconButton(
-                    onClick = onPreviousPage,
-                    enabled = currentPage > 1
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.ArrowBack,
-                        contentDescription = "Previous page",
-                        tint = if (currentPage > 1)
-                            MaterialTheme.colorScheme.onPrimary
-                        else
-                            MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-
-            Box(
-                modifier = Modifier
-                    .background(
-                        MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
-                        RoundedCornerShape(12.dp)
-                    )
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-            ) {
-                Text(
-                    text = "Page $currentPage of $lastPage",
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
-                )
-            }
-
-            Card(
-                modifier = Modifier.shadow(4.dp, RoundedCornerShape(12.dp)),
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = if (currentPage < lastPage)
-                        MaterialTheme.colorScheme.primary
-                    else
-                        MaterialTheme.colorScheme.surfaceVariant
-                )
-            ) {
-                IconButton(
-                    onClick = onNextPage,
-                    enabled = currentPage < lastPage
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.ArrowForward,
-                        contentDescription = "Next page",
-                        tint = if (currentPage < lastPage)
-                            MaterialTheme.colorScheme.onPrimary
-                        else
-                            MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-        }
-    }
-}
