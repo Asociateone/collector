@@ -25,7 +25,7 @@ import com.example.collecter.dataObjects.User
         Platform::class,
         Screenshot::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 @TypeConverters(Converters::class)

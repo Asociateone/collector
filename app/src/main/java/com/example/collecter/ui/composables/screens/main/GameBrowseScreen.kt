@@ -108,12 +108,12 @@ fun GameBrowseScreen(
                 .padding(horizontal = 16.dp)
         ) {
             // Genre filters
+            Text(
+                text = "Genres",
+                style = MaterialTheme.typography.labelLarge,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
             if (genres.isNotEmpty()) {
-                Text(
-                    text = "Genres",
-                    style = MaterialTheme.typography.labelLarge,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
                 LazyRow(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.padding(bottom = 12.dp)
@@ -136,15 +136,22 @@ fun GameBrowseScreen(
                         )
                     }
                 }
+            } else {
+                Text(
+                    text = "Loading genres...",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(bottom = 12.dp)
+                )
             }
 
             // Platform filters
+            Text(
+                text = "Platforms",
+                style = MaterialTheme.typography.labelLarge,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
             if (platforms.isNotEmpty()) {
-                Text(
-                    text = "Platforms",
-                    style = MaterialTheme.typography.labelLarge,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
                 LazyRow(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.padding(bottom = 12.dp)
@@ -167,6 +174,13 @@ fun GameBrowseScreen(
                         )
                     }
                 }
+            } else {
+                Text(
+                    text = "Loading platforms...",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(bottom = 12.dp)
+                )
             }
 
             // Clear filters button

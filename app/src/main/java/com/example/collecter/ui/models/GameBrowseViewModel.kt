@@ -62,12 +62,18 @@ class GameBrowseViewModel(
             val genresResult = http.getGenres()
             if (genresResult is UiState.Success) {
                 _genres.value = genresResult.data
+                android.util.Log.d("GameBrowseViewModel", "Loaded ${genresResult.data.size} genres")
+            } else {
+                android.util.Log.e("GameBrowseViewModel", "Failed to load genres: $genresResult")
             }
 
             // Load platforms
             val platformsResult = http.getPlatforms()
             if (platformsResult is UiState.Success) {
                 _platforms.value = platformsResult.data
+                android.util.Log.d("GameBrowseViewModel", "Loaded ${platformsResult.data.size} platforms")
+            } else {
+                android.util.Log.e("GameBrowseViewModel", "Failed to load platforms: $platformsResult")
             }
         }
     }

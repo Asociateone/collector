@@ -321,6 +321,7 @@ class HTTP (val preferenceData: PreferenceDataStore) {
             header("Content-Type", "application/json")
             header("Accept", "application/json")
             header("Authorization", getAuthHeader())
+            header("X-Device-Type", "mobile")
         }
 
         if (response.status.value >= 400) {
