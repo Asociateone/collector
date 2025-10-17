@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -18,22 +19,31 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
@@ -55,6 +65,7 @@ import com.example.collecter.dataObjects.Platform
 import com.example.collecter.ui.composables.partials.formFields.TextInputField
 import com.example.collecter.ui.composables.views.auth.LoadingView
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GameBrowseScreen(
     modifier: Modifier = Modifier,
@@ -73,6 +84,8 @@ fun GameBrowseScreen(
     onPlatformSelected: (Platform?) -> Unit,
     onClearFilters: () -> Unit
 ) {
+    var genreExpanded by remember { mutableStateOf(false) }
+    var platformExpanded by remember { mutableStateOf(false) }
     val gridState = rememberLazyGridState()
 
     // Detect when user reaches bottom for infinite scroll
@@ -101,86 +114,99 @@ fun GameBrowseScreen(
             placeholderText = "Search games..."
         )
 
-        // Filter chips section
+        // Filter dropdowns section
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
         ) {
-            // Genre filters
-            Text(
-                text = "Genres",
-                style = MaterialTheme.typography.labelLarge,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-            if (genres.isNotEmpty()) {
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.padding(bottom = 12.dp)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                // Genre dropdown
+                ExposedDropdownMenuBox(
+                    expanded = genreExpanded,
+                    onExpandedChange = { genreExpanded = !genreExpanded },
+                    modifier = Modifier.weight(1f)
                 ) {
-                    items(genres) { genre ->
-                        FilterChip(
-                            selected = selectedGenre?.id == genre.id,
+                    OutlinedTextField(
+                        value = selectedGenre?.name ?: "All Genres",
+                        onValueChange = {},
+                        readOnly = true,
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = genreExpanded)
+                        },
+                        colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+                        modifier = Modifier
+                            .menuAnchor()
+                            .fillMaxWidth(),
+                        textStyle = MaterialTheme.typography.bodyMedium
+                    )
+                    ExposedDropdownMenu(
+                        expanded = genreExpanded,
+                        onDismissRequest = { genreExpanded = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("All Genres") },
                             onClick = {
-                                if (selectedGenre?.id == genre.id) {
-                                    onGenreSelected(null)
-                                } else {
+                                onGenreSelected(null)
+                                genreExpanded = false
+                            }
+                        )
+                        genres.forEach { genre ->
+                            DropdownMenuItem(
+                                text = { Text(genre.name) },
+                                onClick = {
                                     onGenreSelected(genre)
+                                    genreExpanded = false
                                 }
-                            },
-                            label = { Text(genre.name) },
-                            colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
-                                selectedLabelColor = Color.White
                             )
-                        )
+                        }
                     }
                 }
-            } else {
-                Text(
-                    text = "Loading genres...",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(bottom = 12.dp)
-                )
-            }
 
-            // Platform filters
-            Text(
-                text = "Platforms",
-                style = MaterialTheme.typography.labelLarge,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-            if (platforms.isNotEmpty()) {
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.padding(bottom = 12.dp)
+                // Platform dropdown
+                ExposedDropdownMenuBox(
+                    expanded = platformExpanded,
+                    onExpandedChange = { platformExpanded = !platformExpanded },
+                    modifier = Modifier.weight(1f)
                 ) {
-                    items(platforms) { platform ->
-                        FilterChip(
-                            selected = selectedPlatform?.id == platform.id,
+                    OutlinedTextField(
+                        value = selectedPlatform?.name ?: "All Platforms",
+                        onValueChange = {},
+                        readOnly = true,
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = platformExpanded)
+                        },
+                        colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+                        modifier = Modifier
+                            .menuAnchor()
+                            .fillMaxWidth(),
+                        textStyle = MaterialTheme.typography.bodyMedium
+                    )
+                    ExposedDropdownMenu(
+                        expanded = platformExpanded,
+                        onDismissRequest = { platformExpanded = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("All Platforms") },
                             onClick = {
-                                if (selectedPlatform?.id == platform.id) {
-                                    onPlatformSelected(null)
-                                } else {
-                                    onPlatformSelected(platform)
-                                }
-                            },
-                            label = { Text(platform.name) },
-                            colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.8f),
-                                selectedLabelColor = Color.White
-                            )
+                                onPlatformSelected(null)
+                                platformExpanded = false
+                            }
                         )
+                        platforms.forEach { platform ->
+                            DropdownMenuItem(
+                                text = { Text(platform.name) },
+                                onClick = {
+                                    onPlatformSelected(platform)
+                                    platformExpanded = false
+                                }
+                            )
+                        }
                     }
                 }
-            } else {
-                Text(
-                    text = "Loading platforms...",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(bottom = 12.dp)
-                )
             }
 
             // Clear filters button
@@ -200,8 +226,10 @@ fun GameBrowseScreen(
                         containerColor = MaterialTheme.colorScheme.errorContainer,
                         labelColor = MaterialTheme.colorScheme.onErrorContainer
                     ),
-                    modifier = Modifier.padding(bottom = 12.dp)
+                    modifier = Modifier.padding(top = 8.dp, bottom = 12.dp)
                 )
+            } else {
+                Spacer(modifier = Modifier.height(12.dp))
             }
         }
 

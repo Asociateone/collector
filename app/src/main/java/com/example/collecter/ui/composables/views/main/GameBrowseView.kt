@@ -1,8 +1,10 @@
 package com.example.collecter.ui.composables.views.main
 
+import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import com.example.collecter.ui.composables.screens.main.GameBrowseScreen
 import com.example.collecter.ui.models.GameBrowseViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -14,6 +16,7 @@ fun GameBrowseView(
     onGameClick: (Int) -> Unit = {}
 ) {
     val gameBrowseViewModel: GameBrowseViewModel = koinViewModel()
+    val context = LocalContext.current
 
     val games = gameBrowseViewModel.games.collectAsState().value
     val isLoading = gameBrowseViewModel.isLoading.collectAsState().value
@@ -33,7 +36,22 @@ fun GameBrowseView(
         onSearchQueryChange = { query ->
             gameBrowseViewModel.setSearchQuery(query.ifBlank { null })
         },
-        onGameClick = onGameClick,
+        onGameClick = { gameId ->
+            if (collectionId != null) {
+                gameBrowseViewModel.addGameToCollection(
+                    collectionId.toInt(),
+                    gameId,
+                    onSuccess = {
+                        Toast.makeText(context, "Game added to wanted list!", Toast.LENGTH_SHORT).show()
+                    },
+                    onError = { message ->
+                        Toast.makeText(context, "Error: $message", Toast.LENGTH_SHORT).show()
+                    }
+                )
+            } else {
+                onGameClick(gameId)
+            }
+        },
         onLoadMore = gameBrowseViewModel::loadNextPage,
         genres = genres,
         platforms = platforms,

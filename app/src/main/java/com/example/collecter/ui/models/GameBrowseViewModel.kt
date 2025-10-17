@@ -6,6 +6,7 @@ import com.example.collecter.dataObjects.Game
 import com.example.collecter.dataObjects.Genre
 import com.example.collecter.dataObjects.Platform
 import com.example.collecter.enums.UiState
+import com.example.collecter.repositories.CollectionRepository
 import com.example.collecter.repositories.GameRepository
 import com.example.collecter.services.HTTP
 import kotlinx.coroutines.Dispatchers
@@ -15,6 +16,7 @@ import kotlinx.coroutines.launch
 
 class GameBrowseViewModel(
     val gameRepository: GameRepository,
+    val collectionRepository: CollectionRepository,
     val http: HTTP
 ) : ViewModel() {
     // Game list with infinite scroll support
@@ -135,6 +137,19 @@ class GameBrowseViewModel(
         if (_hasMorePages.value && !_isLoadingMore.value) {
             _currentPage.value += 1
             loadGames(append = true)
+        }
+    }
+
+    fun addGameToCollection(collectionId: Int, gameId: Int, onSuccess: () -> Unit = {}, onError: (String) -> Unit = {}) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val result = collectionRepository.addGameToCollection(collectionId, gameId, "wanted")
+            if (result is UiState.Success) {
+                android.util.Log.d("GameBrowseViewModel", "Game added to collection successfully")
+                onSuccess()
+            } else if (result is UiState.Error) {
+                android.util.Log.e("GameBrowseViewModel", "Failed to add game: ${result.message}")
+                onError(result.message)
+            }
         }
     }
 }
