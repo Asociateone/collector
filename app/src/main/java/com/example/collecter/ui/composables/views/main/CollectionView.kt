@@ -17,16 +17,21 @@ fun CollectionView(
     modifier: Modifier = Modifier,
     collectionId: String,
     collectionTitle: (String) -> Unit,
+    onGameClick: (Int) -> Unit = {},
+    onAddGame: () -> Unit = {}
 ) {
     val collectionViewModel : CollectionViewModel = koinViewModel()
+    val collectionState = collectionViewModel.uiState.collectAsState().value
+    val gamesState = collectionViewModel.gamesUiState.collectAsState().value
 
     LaunchedEffect(collectionId) {
         collectionId.toIntOrNull()?.let {
             collectionViewModel.getCollection(it)
+            collectionViewModel.getCollectionGames(it)
         }
     }
 
-    when (val collection = collectionViewModel.uiState.collectAsState().value) {
+    when (val collection = collectionState) {
         is UiState.Loading -> {
             Column (modifier.fillMaxSize()) {
                 LoadingView()
@@ -34,8 +39,30 @@ fun CollectionView(
         }
         is UiState.Success -> {
             collectionTitle(collection.data.title)
+
+            val games = when (gamesState) {
+                is UiState.Success -> gamesState.data
+                else -> null
+            }
+
             CollectionScreen(
-                modifier,
+                modifier = modifier,
+                collection = collection.data,
+                games = games,
+                isLoading = false,
+                isGamesLoading = gamesState is UiState.Loading,
+                onGameClick = onGameClick,
+                onAddGame = onAddGame,
+                onToggleStatus = { gameId, newStatus ->
+                    collectionId.toIntOrNull()?.let { collId ->
+                        collectionViewModel.updateGameStatus(collId, gameId, newStatus)
+                    }
+                },
+                onRemoveGame = { gameId ->
+                    collectionId.toIntOrNull()?.let { collId ->
+                        collectionViewModel.removeGameFromCollection(collId, gameId)
+                    }
+                }
             )
         }
         is UiState.Error -> {

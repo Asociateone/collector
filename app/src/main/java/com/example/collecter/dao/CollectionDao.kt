@@ -16,4 +16,7 @@ interface CollectionDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(collections: List<Collection>): Unit
+
+    @Query("DELETE FROM collections WHERE id = :id")
+    suspend fun deleteById(id: Int): Unit
 }

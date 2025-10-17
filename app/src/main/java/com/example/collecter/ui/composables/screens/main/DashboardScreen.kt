@@ -16,12 +16,21 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Card
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -54,6 +63,8 @@ fun DashboardScreen(
     newCollectionTitle: String,
     updateNewCollectionTitle: (String) -> Unit,
     submitNewCollection: () -> Unit,
+    onEditCollection: (Collection) -> Unit = {},
+    onDeleteCollection: (Int) -> Unit = {}
 ) {
     Box(modifier = modifier) {
         if (isLoading) {
@@ -78,7 +89,12 @@ fun DashboardScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(collectionList) { collection ->
-                    ListItem(collectionList = collection, modifier = Modifier.clickable(onClick = { goToCollection(collection.id) }))
+                    ListItem(
+                        collectionList = collection,
+                        onClick = { goToCollection(collection.id) },
+                        onEdit = { onEditCollection(collection) },
+                        onDelete = { onDeleteCollection(collection.id) }
+                    )
                 }
                 item {
                     AddListItem(Modifier.clickable(onClick = createCollection))
@@ -100,12 +116,20 @@ fun DashboardScreen(
 }
 
 @Composable
-fun ListItem(modifier: Modifier = Modifier, collectionList: Collection) {
+fun ListItem(
+    modifier: Modifier = Modifier,
+    collectionList: Collection,
+    onClick: () -> Unit,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit
+) {
+    var showMenu by remember { mutableStateOf(false) }
+
     Box(
         modifier = modifier
             .background(MaterialTheme.colorScheme.surfaceContainer, MaterialTheme.shapes.medium)
-            .padding(8.dp),
-        contentAlignment = Alignment.Center
+            .clickable(onClick = onClick)
+            .padding(8.dp)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -131,6 +155,51 @@ fun ListItem(modifier: Modifier = Modifier, collectionList: Collection) {
                 modifier = Modifier.padding(top = 8.dp),
                 textAlign = TextAlign.Center
             )
+        }
+
+        // Menu button
+        Box(
+            modifier = Modifier.align(Alignment.TopEnd)
+        ) {
+            IconButton(onClick = { showMenu = true }) {
+                Icon(
+                    imageVector = Icons.Filled.MoreVert,
+                    contentDescription = "More options"
+                )
+            }
+
+            DropdownMenu(
+                expanded = showMenu,
+                onDismissRequest = { showMenu = false }
+            ) {
+                DropdownMenuItem(
+                    text = { Text("Edit") },
+                    onClick = {
+                        showMenu = false
+                        onEdit()
+                    },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Filled.Edit,
+                            contentDescription = "Edit"
+                        )
+                    }
+                )
+                DropdownMenuItem(
+                    text = { Text("Delete") },
+                    onClick = {
+                        showMenu = false
+                        onDelete()
+                    },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Filled.Delete,
+                            contentDescription = "Delete",
+                            tint = MaterialTheme.colorScheme.error
+                        )
+                    }
+                )
+            }
         }
     }
 }
