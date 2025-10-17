@@ -19,6 +19,7 @@ import com.example.collecter.enums.MainNavigation
 import com.example.collecter.ui.composables.partials.main.MainNavbar
 import com.example.collecter.ui.composables.views.main.CollectionView
 import com.example.collecter.ui.composables.views.main.DashboardView
+import com.example.collecter.ui.composables.views.main.GameBrowseView
 import com.example.collecter.ui.composables.views.main.MoreView
 import com.example.compose.CollecterTheme
 
@@ -69,6 +70,24 @@ fun MainNavigation(modifier: Modifier = Modifier, navController: NavHostControll
                         Modifier.fillMaxSize(),
                         collectionId,
                         { title.value = it },
+                        onGameClick = { gameId ->
+                            // Navigate to game detail if implemented
+                        },
+                        onAddGame = {
+                            navController.navigate("${MainNavigation.GameBrowse.name}/$collectionId")
+                        }
+                    )
+                }
+                composable("${MainNavigation.GameBrowse.name}/{collectionId}") {
+                    title.value = "Browse Games"
+                    val collectionId =
+                        navController.currentBackStackEntry?.arguments?.getString("collectionId")
+                    GameBrowseView(
+                        Modifier.fillMaxSize(),
+                        collectionId,
+                        onGameClick = { gameId ->
+                            // Navigate to game detail if implemented
+                        }
                     )
                 }
                 composable(MainNavigation.More.name) {

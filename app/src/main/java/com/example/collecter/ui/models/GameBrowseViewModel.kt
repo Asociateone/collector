@@ -16,9 +16,13 @@ class GameBrowseViewModel(val gameRepository: GameRepository) : ViewModel() {
     val uiState: StateFlow<UiState<PaginatedResponse<Game>>> = _uiState
 
     private val _searchQuery = MutableStateFlow<String?>(null)
+    val searchQuery: StateFlow<String?> = _searchQuery
+
     private val _genreFilter = MutableStateFlow<Int?>(null)
     private val _platformFilter = MutableStateFlow<Int?>(null)
+
     private val _currentPage = MutableStateFlow(1)
+    val currentPage: StateFlow<Int> = _currentPage
 
     init {
         browseGames()
