@@ -89,7 +89,8 @@ fun CollectionView(
                 },
                 onDelete = {
                     showDeleteDialog = true
-                }
+                },
+                onNavigateBack = onNavigateBack
             )
 
             // Edit Collection Dialog

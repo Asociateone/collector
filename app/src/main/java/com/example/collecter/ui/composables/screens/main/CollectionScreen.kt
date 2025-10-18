@@ -8,11 +8,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -20,6 +22,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
@@ -36,6 +39,7 @@ import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Tab
@@ -86,7 +90,8 @@ fun CollectionScreen(
     onToggleStatus: (Int, String) -> Unit,
     onRemoveGame: (Int) -> Unit,
     onEdit: () -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    onNavigateBack: () -> Unit
 ) {
     var selectedTabIndex by remember { mutableIntStateOf(0) }
     val tabs = listOf("Want", "Have")
@@ -98,18 +103,26 @@ fun CollectionScreen(
         game.status == currentStatus
     }
 
-    Column(modifier = modifier.fillMaxSize()) {
-        if (isLoading) {
-            LoadingView(Modifier.fillMaxSize())
-        } else if (collection != null) {
-            // Collection Header - TopAppBar with overflow menu
-            TopAppBar(
+    if (isLoading) {
+        LoadingView(Modifier.fillMaxSize())
+    } else if (collection != null) {
+        Scaffold(
+            topBar = {
+                TopAppBar(
                     title = {
                         Text(
                             text = collection.title,
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
                         )
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = onNavigateBack) {
+                            Icon(
+                                imageVector = Icons.Filled.ArrowBack,
+                                contentDescription = "Navigate back"
+                            )
+                        }
                     },
                     actions = {
                         Box {
@@ -158,34 +171,56 @@ fun CollectionScreen(
                         titleContentColor = MaterialTheme.colorScheme.onSurface
                     )
                 )
-
-            // Tabs for Want/Have
-            TabRow(
-                selectedTabIndex = selectedTabIndex,
-                modifier = Modifier.fillMaxWidth(),
-                containerColor = MaterialTheme.colorScheme.surface,
-                contentColor = MaterialTheme.colorScheme.primary
-            ) {
-                tabs.forEachIndexed { index, title ->
-                    Tab(
-                        selected = selectedTabIndex == index,
-                        onClick = { selectedTabIndex = index },
-                        text = {
-                            Text(
-                                text = title,
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = if (selectedTabIndex == index)
-                                    androidx.compose.ui.text.font.FontWeight.Bold
-                                else
-                                    androidx.compose.ui.text.font.FontWeight.Normal
-                            )
-                        }
+            },
+            floatingActionButton = {
+                FloatingActionButton(
+                    onClick = { onAddGame(currentStatus) },
+                    shape = CircleShape,
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    elevation = FloatingActionButtonDefaults.elevation(
+                        defaultElevation = 8.dp,
+                        pressedElevation = 12.dp
+                    )
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Add,
+                        contentDescription = "Add game",
+                        modifier = Modifier.size(32.dp),
+                        tint = MaterialTheme.colorScheme.onPrimary
                     )
                 }
             }
+        ) { paddingValues ->
+            Column(modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+            ) {
+                // Tabs for Want/Have
+                TabRow(
+                    selectedTabIndex = selectedTabIndex,
+                    modifier = Modifier.fillMaxWidth(),
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    contentColor = MaterialTheme.colorScheme.primary
+                ) {
+                    tabs.forEachIndexed { index, title ->
+                        Tab(
+                            selected = selectedTabIndex == index,
+                            onClick = { selectedTabIndex = index },
+                            text = {
+                                Text(
+                                    text = title,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = if (selectedTabIndex == index)
+                                        androidx.compose.ui.text.font.FontWeight.Bold
+                                    else
+                                        androidx.compose.ui.text.font.FontWeight.Normal
+                                )
+                            }
+                        )
+                    }
+                }
 
-            // Games List with FAB
-            Box(modifier = Modifier.weight(1f)) {
+                // Games List
                 if (isGamesLoading) {
                     LoadingView(Modifier.fillMaxSize())
                 } else if (filteredGames != null && filteredGames.isNotEmpty()) {
@@ -214,29 +249,6 @@ fun CollectionScreen(
                             style = MaterialTheme.typography.titleMedium
                         )
                     }
-                }
-
-                // FAB to add games - Enhanced gaming style
-                FloatingActionButton(
-                    onClick = { onAddGame(currentStatus) },
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(24.dp)
-                        .shadow(12.dp, CircleShape)
-                        .size(72.dp),
-                    shape = CircleShape,
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    elevation = FloatingActionButtonDefaults.elevation(
-                        defaultElevation = 8.dp,
-                        pressedElevation = 12.dp
-                    )
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Add,
-                        contentDescription = "Add game",
-                        modifier = Modifier.size(32.dp),
-                        tint = MaterialTheme.colorScheme.onPrimary
-                    )
                 }
             }
         }
