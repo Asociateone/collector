@@ -20,9 +20,15 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.FloatingActionButton
@@ -30,32 +36,44 @@ import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberSwipeToDismissBoxState
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.collecter.R
 import com.example.collecter.dataObjects.Collection
 import com.example.collecter.dataObjects.Game
+import com.example.collecter.ui.composables.partials.Button
+import com.example.collecter.ui.composables.partials.formFields.TextInputField
 import com.example.collecter.ui.composables.views.auth.LoadingView
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CollectionScreen(
     modifier: Modifier = Modifier,
@@ -66,114 +84,108 @@ fun CollectionScreen(
     onGameClick: (Int) -> Unit,
     onAddGame: (String) -> Unit,
     onToggleStatus: (Int, String) -> Unit,
-    onRemoveGame: (Int) -> Unit
+    onRemoveGame: (Int) -> Unit,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit
 ) {
     var selectedTabIndex by remember { mutableIntStateOf(0) }
     val tabs = listOf("Want", "Have")
     val currentStatus = if (selectedTabIndex == 0) "wanted" else "have"
+    var showDropdownMenu by remember { mutableStateOf(false) }
 
     // Filter games based on selected tab
     val filteredGames = games?.filter { game ->
         game.status == currentStatus
     }
 
-    Box(modifier = modifier.fillMaxSize()) {
+    Column(modifier = modifier.fillMaxSize()) {
         if (isLoading) {
             LoadingView(Modifier.fillMaxSize())
         } else if (collection != null) {
-            Column(modifier = Modifier.fillMaxSize()) {
-                // Collection Header - Enhanced
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                        .shadow(8.dp, RoundedCornerShape(20.dp)),
-                    shape = RoundedCornerShape(20.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer
-                    ),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-                ) {
-                    Box {
-                        // Gradient background
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(120.dp)
-                                .background(
-                                    Brush.horizontalGradient(
-                                        colors = listOf(
-                                            MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
-                                            MaterialTheme.colorScheme.tertiary.copy(alpha = 0.2f)
-                                        )
-                                    )
-                                )
+            // Collection Header - TopAppBar with overflow menu
+            TopAppBar(
+                    title = {
+                        Text(
+                            text = collection.title,
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
                         )
-
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(20.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            collection.icon?.let { icon ->
-                                Card(
-                                    modifier = Modifier
-                                        .shadow(6.dp, RoundedCornerShape(16.dp)),
-                                    shape = RoundedCornerShape(16.dp)
-                                ) {
-                                    AsyncImage(
-                                        model = ImageRequest.Builder(context = LocalContext.current)
-                                            .data(icon)
-                                            .crossfade(true)
-                                            .build(),
-                                        contentDescription = collection.title,
-                                        placeholder = painterResource(R.drawable.image),
-                                        error = painterResource(R.drawable.menu),
-                                        modifier = Modifier
-                                            .size(80.dp)
-                                            .clip(RoundedCornerShape(16.dp)),
-                                        contentScale = ContentScale.Crop
-                                    )
-                                }
-                                Spacer(modifier = Modifier.width(20.dp))
+                    },
+                    actions = {
+                        Box {
+                            IconButton(onClick = { showDropdownMenu = true }) {
+                                Icon(
+                                    imageVector = Icons.Filled.MoreVert,
+                                    contentDescription = "More options"
+                                )
                             }
+                            DropdownMenu(
+                                expanded = showDropdownMenu,
+                                onDismissRequest = { showDropdownMenu = false }
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text("Edit") },
+                                    onClick = {
+                                        showDropdownMenu = false
+                                        onEdit()
+                                    },
+                                    leadingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Filled.Edit,
+                                            contentDescription = "Edit"
+                                        )
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text("Delete") },
+                                    onClick = {
+                                        showDropdownMenu = false
+                                        onDelete()
+                                    },
+                                    leadingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Filled.Delete,
+                                            contentDescription = "Delete",
+                                            tint = MaterialTheme.colorScheme.error
+                                        )
+                                    }
+                                )
+                            }
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        titleContentColor = MaterialTheme.colorScheme.onSurface
+                    )
+                )
+
+            // Tabs for Want/Have
+            TabRow(
+                selectedTabIndex = selectedTabIndex,
+                modifier = Modifier.fillMaxWidth(),
+                containerColor = MaterialTheme.colorScheme.surface,
+                contentColor = MaterialTheme.colorScheme.primary
+            ) {
+                tabs.forEachIndexed { index, title ->
+                    Tab(
+                        selected = selectedTabIndex == index,
+                        onClick = { selectedTabIndex = index },
+                        text = {
                             Text(
-                                text = collection.title,
-                                style = MaterialTheme.typography.headlineMedium,
-                                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onPrimaryContainer
+                                text = title,
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = if (selectedTabIndex == index)
+                                    androidx.compose.ui.text.font.FontWeight.Bold
+                                else
+                                    androidx.compose.ui.text.font.FontWeight.Normal
                             )
                         }
-                    }
+                    )
                 }
+            }
 
-                // Tabs for Want/Have
-                TabRow(
-                    selectedTabIndex = selectedTabIndex,
-                    modifier = Modifier.fillMaxWidth(),
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    contentColor = MaterialTheme.colorScheme.primary
-                ) {
-                    tabs.forEachIndexed { index, title ->
-                        Tab(
-                            selected = selectedTabIndex == index,
-                            onClick = { selectedTabIndex = index },
-                            text = {
-                                Text(
-                                    text = title,
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = if (selectedTabIndex == index)
-                                        androidx.compose.ui.text.font.FontWeight.Bold
-                                    else
-                                        androidx.compose.ui.text.font.FontWeight.Normal
-                                )
-                            }
-                        )
-                    }
-                }
-
-                // Games List
+            // Games List with FAB
+            Box(modifier = Modifier.weight(1f)) {
                 if (isGamesLoading) {
                     LoadingView(Modifier.fillMaxSize())
                 } else if (filteredGames != null && filteredGames.isNotEmpty()) {
@@ -203,34 +215,35 @@ fun CollectionScreen(
                         )
                     }
                 }
-            }
 
-            // FAB to add games - Enhanced gaming style
-            FloatingActionButton(
-                onClick = { onAddGame(currentStatus) },
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(24.dp)
-                    .shadow(12.dp, CircleShape)
-                    .size(72.dp),
-                shape = CircleShape,
-                containerColor = MaterialTheme.colorScheme.primary,
-                elevation = FloatingActionButtonDefaults.elevation(
-                    defaultElevation = 8.dp,
-                    pressedElevation = 12.dp
-                )
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Add,
-                    contentDescription = "Add game",
-                    modifier = Modifier.size(32.dp),
-                    tint = MaterialTheme.colorScheme.onPrimary
-                )
+                // FAB to add games - Enhanced gaming style
+                FloatingActionButton(
+                    onClick = { onAddGame(currentStatus) },
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(24.dp)
+                        .shadow(12.dp, CircleShape)
+                        .size(72.dp),
+                    shape = CircleShape,
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    elevation = FloatingActionButtonDefaults.elevation(
+                        defaultElevation = 8.dp,
+                        pressedElevation = 12.dp
+                    )
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Add,
+                        contentDescription = "Add game",
+                        modifier = Modifier.size(32.dp),
+                        tint = MaterialTheme.colorScheme.onPrimary
+                    )
+                }
             }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CollectionGameItem(
     game: Game,
@@ -238,28 +251,51 @@ fun CollectionGameItem(
     onToggleStatus: (String) -> Unit,
     onRemoveGame: () -> Unit
 ) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .shadow(6.dp, RoundedCornerShape(16.dp))
-            .clickable(onClick = onGameClick),
-        shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
+    val dismissState = rememberSwipeToDismissBoxState(
+        confirmValueChange = { value ->
+            if (value == SwipeToDismissBoxValue.EndToStart) {
+                onRemoveGame()
+                true
+            } else {
+                false
+            }
+        }
+    )
+
+    SwipeToDismissBox(
+        state = dismissState,
+        backgroundContent = {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.errorContainer, RoundedCornerShape(16.dp))
+                    .padding(horizontal = 24.dp),
+                contentAlignment = Alignment.CenterEnd
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Delete,
+                    contentDescription = "Delete",
+                    tint = MaterialTheme.colorScheme.onErrorContainer,
+                    modifier = Modifier.size(28.dp)
+                )
+            }
+        },
+        enableDismissFromStartToEnd = false
     ) {
-        Row(
+        Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(
-                    Brush.horizontalGradient(
-                        colors = listOf(
-                            MaterialTheme.colorScheme.surface,
-                            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
-                        )
-                    )
-                )
-                .padding(14.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .clickable(onClick = onGameClick),
+            shape = RoundedCornerShape(16.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
         ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.surface)
+                    .padding(14.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
             // Cover Image with enhanced styling
             Card(
                 modifier = Modifier.shadow(4.dp, RoundedCornerShape(12.dp)),
@@ -360,20 +396,81 @@ fun CollectionGameItem(
                     )
                 }
             }
+        }
+    }
+    }
+}
 
-            // Remove button with enhanced styling
+@Composable
+fun EditCollectionDialog(
+    collection: Collection,
+    title: String = "",
+    updateTitle: (String) -> Unit = {},
+    onDismiss: () -> Unit,
+    onSubmit: () -> Unit,
+    isLoading: Boolean = false,
+    errorMessage: String? = null
+) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.5f))
+                .clickable(onClick = onDismiss),
+            contentAlignment = Alignment.Center
+        ) {
             Card(
-                modifier = Modifier.shadow(3.dp, CircleShape),
-                shape = CircleShape,
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.errorContainer
-                )
+                modifier = Modifier
+                    .fillMaxWidth(0.9f)
+                    .clickable(enabled = false) {},
             ) {
-                IconButton(onClick = onRemoveGame) {
-                    Icon(
-                        imageVector = Icons.Filled.Delete,
-                        contentDescription = "Remove game",
-                        tint = MaterialTheme.colorScheme.error
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Box(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = "Edit Collection",
+                            style = MaterialTheme.typography.headlineSmall,
+                            modifier = Modifier.align(Alignment.CenterStart)
+                        )
+                        IconButton(
+                            onClick = onDismiss,
+                            modifier = Modifier.align(Alignment.CenterEnd)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Close,
+                                contentDescription = "Close"
+                            )
+                        }
+                    }
+                    if (errorMessage != null) {
+                        Text(
+                            text = errorMessage,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center,
+                            maxLines = 1
+                        )
+                    }
+                    TextInputField(
+                        title,
+                        onValueChange = updateTitle,
+                        modifier = Modifier.fillMaxWidth(),
+                        placeholderText = "Title",
+                    )
+                    Button(
+                        modifier = Modifier,
+                        value = "Save",
+                        onClick = onSubmit,
+                        isLoading = isLoading
                     )
                 }
             }

@@ -75,6 +75,9 @@ fun MainNavigation(modifier: Modifier = Modifier, navController: NavHostControll
                         },
                         onAddGame = { status ->
                             navController.navigate("${MainNavigation.GameBrowse.name}/$collectionId/$status")
+                        },
+                        onNavigateBack = {
+                            navController.popBackStack()
                         }
                     )
                 }
