@@ -17,6 +17,12 @@ val displayFontFamily = FontFamily(
     )
 )
 
+val neonFontFamily = FontFamily(
+    Font(
+        R.font.tilt_neon
+    )
+)
+
 // Default Material 3 typography values
 val baseline = Typography()
 

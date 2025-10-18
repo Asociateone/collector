@@ -354,7 +354,7 @@ fun GameCard(
                                 .align(Alignment.TopEnd)
                                 .padding(12.dp)
                                 .background(
-                                    Color(0xFF4CAF50).copy(alpha = 0.9f),
+                                    Color(0xFF39FF14).copy(alpha = 0.95f), // Neon Green
                                     RoundedCornerShape(8.dp)
                                 )
                                 .padding(horizontal = 10.dp, vertical = 6.dp)
@@ -362,7 +362,7 @@ fun GameCard(
                             Text(
                                 text = String.format("%.1f", rating),
                                 style = MaterialTheme.typography.labelLarge,
-                                color = Color.White,
+                                color = Color.Black, // Black text on neon green
                                 fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
                             )
                         }

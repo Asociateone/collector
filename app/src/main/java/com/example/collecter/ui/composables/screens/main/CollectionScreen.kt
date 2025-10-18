@@ -337,7 +337,7 @@ fun CollectionGameItem(
                                 .align(Alignment.TopEnd)
                                 .padding(6.dp)
                                 .background(
-                                    Color(0xFF4CAF50).copy(alpha = 0.95f),
+                                    Color(0xFF39FF14).copy(alpha = 0.95f), // Neon Green
                                     RoundedCornerShape(6.dp)
                                 )
                                 .padding(horizontal = 6.dp, vertical = 4.dp)
@@ -345,7 +345,7 @@ fun CollectionGameItem(
                             Text(
                                 text = String.format("%.1f", rating),
                                 style = MaterialTheme.typography.labelSmall,
-                                color = Color.White,
+                                color = Color.Black, // Black text on neon green
                                 fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
                             )
                         }
@@ -386,8 +386,8 @@ fun CollectionGameItem(
                             )
                         },
                         colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = Color(0xFF2196F3).copy(alpha = 0.8f),
-                            selectedLabelColor = Color.White
+                            selectedContainerColor = Color(0xFF00FFFF).copy(alpha = 0.9f), // Electric Cyan
+                            selectedLabelColor = Color.Black
                         )
                     )
                     FilterChip(
@@ -403,7 +403,7 @@ fun CollectionGameItem(
                             )
                         },
                         colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = Color(0xFF4CAF50).copy(alpha = 0.8f),
+                            selectedContainerColor = Color(0xFFFF1493).copy(alpha = 0.9f), // Hot Pink
                             selectedLabelColor = Color.White
                         )
                     )
