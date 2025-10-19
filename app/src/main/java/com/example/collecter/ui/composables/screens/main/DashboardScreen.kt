@@ -119,7 +119,10 @@ fun DashboardScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(collectionList) { collection ->
-                        ListItem(collectionList = collection, modifier = Modifier.clickable(onClick = { goToCollection(collection.id) }))
+                        ListItem(
+                            collectionList = collection,
+                            onClick = { goToCollection(collection.id) }
+                        )
                     }
                     item {
                         AddListItem(Modifier.clickable(onClick = createCollection))
