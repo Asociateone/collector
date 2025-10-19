@@ -258,7 +258,7 @@ val unspecified_scheme = ColorFamily(
 @Composable
 fun CollecterTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false, // Disabled for 80s neon theme
     content: @Composable() () -> Unit
 ) {
   val colorScheme = when {
@@ -266,7 +266,7 @@ fun CollecterTheme(
           val context = LocalContext.current
           if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
       }
-      
+
       darkTheme -> darkScheme
       else -> lightScheme
   }

@@ -3,6 +3,8 @@ package com.example.collecter.services
 import android.util.Log
 import com.example.collecter.dataObjects.ApiResource
 import com.example.collecter.dataObjects.Collection
+import com.example.collecter.dataObjects.Game
+import com.example.collecter.dataObjects.PaginatedResponse
 import com.example.collecter.dataObjects.User
 import com.example.collecter.enums.DataStoreKeys
 import com.example.collecter.enums.UiState
@@ -14,6 +16,7 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.header
+import io.ktor.client.request.patch
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
@@ -23,6 +26,13 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.first
 import kotlinx.serialization.json.Json
 import kotlin.collections.mapOf
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class AddGameToCollectionRequest(
+    val game_id: Int,
+    val status: String
+)
 
 @OptIn(InternalAPI::class)
 class HTTP (val preferenceData: PreferenceDataStore) {
@@ -131,24 +141,26 @@ class HTTP (val preferenceData: PreferenceDataStore) {
         return response.body<WebState.Success<Collection>>()
     }
 
-    suspend fun createCollection(title: String): WebState<Collection> {
+    suspend fun createCollection(title: String, icon: String? = null): UiState<Collection> {
+        val body = mutableMapOf("title" to title)
+        icon?.let { body["icon"] = it }
+
         val response = client.post("${mainUrl}/collections") {
             header("Content-Type", "application/json")
             header("Accept", "application/json")
             header("Authorization", getAuthHeader())
-            setBody(mapOf(
-                "title" to title,
-            ))
+            header("X-Device-Type", "mobile")
+            setBody(body)
         }
 
         if (response.status.value >= 400) {
-            return response.body<WebState.Error>()
+            return response.body<UiState.Error>()
         }
 
-        return response.body<WebState.Success<Collection>>()
+        return response.body<UiState.Success<Collection>>()
     }
 
-    suspend fun deleteCollection(collectionId: Int): WebState<Unit> {
+    suspend fun deleteCollection(collectionId: Int): UiState<Unit> {
         val response = client.delete("${mainUrl}/collections/${collectionId}") {
             header("Content-Type", "application/json")
             header("Accept", "application/json")
@@ -159,17 +171,183 @@ class HTTP (val preferenceData: PreferenceDataStore) {
 
         // 404 means already deleted, treat as success
         if (response.status.value == 404) {
-            return WebState.Success(Unit)
+            return UiState.Success(Unit)
         }
 
         if (response.status.value >= 400) {
-            return response.body<WebState.Error>()
+            return response.body<UiState.Error>()
         }
 
         if (response.status.value == 204 || (response.status.value >= 200 && response.status.value < 300)) {
-            return WebState.Success(Unit)
+            return UiState.Success(Unit)
         }
 
-        return WebState.Error("Unknown error")
+        return UiState.Error("Unknown error")
+    }
+
+    suspend fun updateCollection(collectionId: Int, title: String?, icon: String?): UiState<Collection> {
+        val body = mutableMapOf<String, String>()
+        title?.let { body["title"] = it }
+        icon?.let { body["icon"] = it }
+
+        val response = client.patch("${mainUrl}/collections/${collectionId}") {
+            header("Content-Type", "application/json")
+            header("Accept", "application/json")
+            header("Authorization", getAuthHeader())
+            header("X-Device-Type", "mobile")
+            setBody(body)
+        }
+
+        if (response.status.value >= 400) {
+            return response.body<UiState.Error>()
+        }
+
+        return response.body<UiState.Success<Collection>>()
+    }
+
+    // Game endpoints
+    suspend fun browseGames(
+        search: String? = null,
+        genre: Int? = null,
+        platform: Int? = null,
+        page: Int = 1
+    ): UiState<PaginatedResponse<Game>> {
+        var url = "${mainUrl}/games?page=${page}"
+        search?.let { url += "&search=${it}" }
+        genre?.let { url += "&genre=${it}" }
+        platform?.let { url += "&platform=${it}" }
+
+        val response = client.get(url) {
+            header("Content-Type", "application/json")
+            header("Accept", "application/json")
+            header("Authorization", getAuthHeader())
+            header("X-Device-Type", "mobile")
+        }
+
+        if (response.status.value >= 400) {
+            return response.body<UiState.Error>()
+        }
+
+        return UiState.Success(response.body<PaginatedResponse<Game>>())
+    }
+
+    suspend fun getGame(gameId: Int): UiState<Game> {
+        val response = client.get("${mainUrl}/games/${gameId}") {
+            header("Content-Type", "application/json")
+            header("Accept", "application/json")
+            header("Authorization", getAuthHeader())
+            header("X-Device-Type", "mobile")
+        }
+
+        if (response.status.value >= 400) {
+            return response.body<UiState.Error>()
+        }
+
+        val data = response.body<ApiResource<Game>>()
+        return UiState.Success(data.data)
+    }
+
+    // Collection Game Management endpoints
+    suspend fun getCollectionGames(collectionId: Int, status: String? = null): UiState<List<Game>> {
+        var url = "${mainUrl}/collections/${collectionId}/games"
+        status?.let { url += "?status=${it}" }
+
+        val response = client.get(url) {
+            header("Content-Type", "application/json")
+            header("Accept", "application/json")
+            header("Authorization", getAuthHeader())
+            header("X-Device-Type", "mobile")
+        }
+
+        if (response.status.value >= 400) {
+            return response.body<UiState.Error>()
+        }
+
+        val data = response.body<ApiResource<List<Game>>>()
+        return UiState.Success(data.data)
+    }
+
+    suspend fun addGameToCollection(collectionId: Int, gameId: Int, status: String = "wanted"): UiState<Game> {
+        val response = client.post("${mainUrl}/collections/${collectionId}/games") {
+            header("Content-Type", "application/json")
+            header("Accept", "application/json")
+            header("Authorization", getAuthHeader())
+            header("X-Device-Type", "mobile")
+            setBody(AddGameToCollectionRequest(
+                game_id = gameId,
+                status = status
+            ))
+        }
+
+        if (response.status.value >= 400) {
+            return response.body<UiState.Error>()
+        }
+
+        val data = response.body<ApiResource<Game>>()
+        return UiState.Success(data.data)
+    }
+
+    suspend fun updateGameStatus(collectionId: Int, gameId: Int, status: String): UiState<Game> {
+        val response = client.patch("${mainUrl}/collections/${collectionId}/games/${gameId}") {
+            header("Content-Type", "application/json")
+            header("Accept", "application/json")
+            header("Authorization", getAuthHeader())
+            header("X-Device-Type", "mobile")
+            setBody(mapOf("status" to status))
+        }
+
+        if (response.status.value >= 400) {
+            return response.body<UiState.Error>()
+        }
+
+        val data = response.body<ApiResource<Game>>()
+        return UiState.Success(data.data)
+    }
+
+    suspend fun removeGameFromCollection(collectionId: Int, gameId: Int): UiState<Unit> {
+        val response = client.delete("${mainUrl}/collections/${collectionId}/games/${gameId}") {
+            header("Content-Type", "application/json")
+            header("Accept", "application/json")
+            header("Authorization", getAuthHeader())
+        }
+
+        if (response.status.value >= 400) {
+            return response.body<UiState.Error>()
+        }
+
+        return UiState.Success(Unit)
+    }
+
+    // Genre endpoints
+    suspend fun getGenres(): UiState<List<com.example.collecter.dataObjects.Genre>> {
+        val response = client.get("${mainUrl}/genres") {
+            header("Content-Type", "application/json")
+            header("Accept", "application/json")
+            header("Authorization", getAuthHeader())
+        }
+
+        if (response.status.value >= 400) {
+            return response.body<UiState.Error>()
+        }
+
+        val data = response.body<ApiResource<List<com.example.collecter.dataObjects.Genre>>>()
+        return UiState.Success(data.data)
+    }
+
+    // Platform endpoints
+    suspend fun getPlatforms(): UiState<List<com.example.collecter.dataObjects.Platform>> {
+        val response = client.get("${mainUrl}/platforms") {
+            header("Content-Type", "application/json")
+            header("Accept", "application/json")
+            header("Authorization", getAuthHeader())
+            header("X-Device-Type", "mobile")
+        }
+
+        if (response.status.value >= 400) {
+            return response.body<UiState.Error>()
+        }
+
+        val data = response.body<ApiResource<List<com.example.collecter.dataObjects.Platform>>>()
+        return UiState.Success(data.data)
     }
 }

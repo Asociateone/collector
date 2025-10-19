@@ -3,13 +3,13 @@ package com.example.collecter.ui.navigations
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -19,6 +19,7 @@ import com.example.collecter.enums.MainNavigation
 import com.example.collecter.ui.composables.partials.main.MainNavbar
 import com.example.collecter.ui.composables.views.main.CollectionView
 import com.example.collecter.ui.composables.views.main.DashboardView
+import com.example.collecter.ui.composables.views.main.GameBrowseView
 import com.example.collecter.ui.composables.views.main.MoreView
 import com.example.compose.CollecterTheme
 
@@ -69,9 +70,32 @@ fun MainNavigation(modifier: Modifier = Modifier, navController: NavHostControll
                         Modifier.fillMaxSize(),
                         collectionId,
                         { title.value = it },
-                        onBackClick = {
+                        onGameClick = { gameId ->
+                            // Navigate to game detail if implemented
+                        },
+                        onAddGame = { status ->
+                            navController.navigate("${MainNavigation.GameBrowse.name}/$collectionId/$status")
+                        },
+                        onNavigateBack = {
                             navController.popBackStack()
-                            navController.navigate(MainNavigation.Dashboard.name)
+                        }
+                    )
+                }
+                composable("${MainNavigation.GameBrowse.name}/{collectionId}/{status}") {
+                    title.value = "Browse Games"
+                    val collectionId =
+                        navController.currentBackStackEntry?.arguments?.getString("collectionId")
+                    val status =
+                        navController.currentBackStackEntry?.arguments?.getString("status") ?: "wanted"
+                    GameBrowseView(
+                        Modifier.fillMaxSize(),
+                        collectionId,
+                        status,
+                        onGameClick = { gameId ->
+                            // Navigate to game detail if implemented
+                        },
+                        onGameAdded = {
+                            navController.popBackStack()
                         }
                     )
                 }

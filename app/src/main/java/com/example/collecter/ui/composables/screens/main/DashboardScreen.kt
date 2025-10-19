@@ -13,14 +13,19 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
@@ -58,7 +63,7 @@ fun DashboardScreen(
     onDismissCreate: () -> Unit = {},
     newCollectionTitle: String,
     updateNewCollectionTitle: (String) -> Unit,
-    submitNewCollection: () -> Unit,
+    submitNewCollection: () -> Unit
 ) {
     Box(modifier = modifier) {
         if (isLoading) {
@@ -66,13 +71,39 @@ fun DashboardScreen(
         }
 
         Column(modifier = Modifier.fillMaxSize()) {
-            TextInputField(
-                searchQuery,
+            OutlinedTextField(
+                value = searchQuery,
                 onValueChange = onSearchQueryChange,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
-                placeholderText = "Search collections..."
+                placeholder = {
+                    Text("Search collections...")
+                },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Filled.Search,
+                        contentDescription = "Search",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                },
+                trailingIcon = {
+                    if (searchQuery.isNotEmpty()) {
+                        IconButton(onClick = { onSearchQueryChange("") }) {
+                            Icon(
+                                imageVector = Icons.Filled.Clear,
+                                contentDescription = "Clear search",
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                },
+                singleLine = true,
+                shape = RoundedCornerShape(16.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outline
+                )
             )
 
             PullToRefreshBox(
@@ -88,7 +119,10 @@ fun DashboardScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(collectionList) { collection ->
-                        ListItem(collectionList = collection, modifier = Modifier.clickable(onClick = { goToCollection(collection.id) }))
+                        ListItem(
+                            collectionList = collection,
+                            onClick = { goToCollection(collection.id) }
+                        )
                     }
                     item {
                         AddListItem(Modifier.clickable(onClick = createCollection))
@@ -111,12 +145,16 @@ fun DashboardScreen(
 }
 
 @Composable
-fun ListItem(modifier: Modifier = Modifier, collectionList: Collection) {
+fun ListItem(
+    modifier: Modifier = Modifier,
+    collectionList: Collection,
+    onClick: () -> Unit
+) {
     Box(
         modifier = modifier
             .background(MaterialTheme.colorScheme.surfaceContainer, MaterialTheme.shapes.medium)
-            .padding(8.dp),
-        contentAlignment = Alignment.Center
+            .clickable(onClick = onClick)
+            .padding(8.dp)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
