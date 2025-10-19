@@ -230,14 +230,18 @@ fun CollectionScreen(
                         contentPadding = PaddingValues(16.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        items(filteredGames) { game ->
+                        items(
+                            items = filteredGames,
+                            key = { game -> game.id }
+                        ) { game ->
                             CollectionGameItem(
                                 game = game,
                                 onGameClick = { onGameClick(game.id) },
                                 onToggleStatus = { newStatus ->
                                     onToggleStatus(game.id, newStatus)
                                 },
-                                onRemoveGame = { onRemoveGame(game.id) }
+                                onRemoveGame = { onRemoveGame(game.id) },
+                                modifier = Modifier.animateItem()
                             )
                         }
                     }
@@ -263,7 +267,8 @@ fun CollectionGameItem(
     game: Game,
     onGameClick: () -> Unit,
     onToggleStatus: (String) -> Unit,
-    onRemoveGame: () -> Unit
+    onRemoveGame: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val dismissState = rememberSwipeToDismissBoxState(
         confirmValueChange = { value ->
@@ -278,6 +283,7 @@ fun CollectionGameItem(
 
     SwipeToDismissBox(
         state = dismissState,
+        modifier = modifier,
         backgroundContent = {
             Box(
                 modifier = Modifier

@@ -8,6 +8,7 @@ import com.example.collecter.dataObjects.Game
 import com.example.collecter.enums.UiState
 import com.example.collecter.repositories.CollectionRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -81,12 +82,38 @@ class CollectionViewModel (val collectionRepository: CollectionRepository) : Vie
     }
 
     fun removeGameFromCollection(collectionId: Int, gameId: Int, onSuccess: () -> Unit = {}) {
+        viewModelScope.launch {
+            // Wait for swipe animation to complete (Material3 animation is ~300ms)
+            delay(350)
+
+            // Optimistically update UI by removing the game from the list
+            val currentState = _gamesUiState.value
+            if (currentState is UiState.Success) {
+                val updatedGames = currentState.data.filter { it.id != gameId }
+                _gamesUiState.value = UiState.Success(updatedGames)
+            }
+        }
+
+        // Make API call in the background
         viewModelScope.launch(Dispatchers.IO) {
             val result = collectionRepository.removeGameFromCollection(collectionId, gameId)
             if (result is UiState.Success) {
-                // Refresh games list
-                getCollectionGames(collectionId)
                 onSuccess()
+                // Silently refresh to ensure data consistency
+                refreshCollectionGamesInBackground(collectionId)
+            } else {
+                // If removal failed, refresh the list to revert the optimistic update
+                getCollectionGames(collectionId)
+            }
+        }
+    }
+
+    private fun refreshCollectionGamesInBackground(collectionId: Int, status: String? = null) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val result = collectionRepository.getCollectionGames(collectionId, status)
+            // Only update if we got successful data, don't change to Loading state
+            if (result is UiState.Success) {
+                _gamesUiState.value = result
             }
         }
     }
