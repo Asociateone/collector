@@ -26,7 +26,6 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -63,6 +62,7 @@ import com.example.collecter.R
 import com.example.collecter.dataObjects.Game
 import com.example.collecter.dataObjects.Genre
 import com.example.collecter.dataObjects.Platform
+import com.example.collecter.ui.composables.partials.RetroLoadingIndicator
 import com.example.collecter.ui.composables.views.auth.LoadingView
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -303,9 +303,7 @@ fun GameBrowseScreen(
                                         .padding(16.dp),
                                     contentAlignment = Alignment.Center
                                 ) {
-                                    CircularProgressIndicator(
-                                        modifier = Modifier.size(32.dp)
-                                    )
+                                    RetroLoadingIndicator()
                                 }
                             }
                         }
