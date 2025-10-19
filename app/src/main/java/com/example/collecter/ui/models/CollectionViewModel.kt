@@ -74,12 +74,29 @@ class CollectionViewModel (val collectionRepository: CollectionRepository) : Vie
     }
 
     fun updateGameStatus(collectionId: Int, gameId: Int, status: String, onSuccess: () -> Unit = {}) {
+        // Optimistically update UI by changing the game status in the list
+        val currentState = _gamesUiState.value
+        if (currentState is UiState.Success) {
+            val updatedGames = currentState.data.map { game ->
+                if (game.id == gameId) {
+                    game.copy(status = status)
+                } else {
+                    game
+                }
+            }
+            _gamesUiState.value = UiState.Success(updatedGames)
+        }
+
+        // Make API call in the background
         viewModelScope.launch(Dispatchers.IO) {
             val result = collectionRepository.updateGameStatus(collectionId, gameId, status)
             if (result is UiState.Success) {
-                // Refresh games list
-                getCollectionGames(collectionId)
                 onSuccess()
+                // Silently refresh to ensure data consistency
+                refreshCollectionGamesInBackground(collectionId)
+            } else {
+                // If update failed, refresh the list to revert the optimistic update
+                getCollectionGames(collectionId)
             }
         }
     }
