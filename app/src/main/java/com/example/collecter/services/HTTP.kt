@@ -113,6 +113,41 @@ class HTTP (val preferenceData: PreferenceDataStore) {
         return WebState.Success(response.body())
     }
 
+    /**
+     * Get currently authenticated user's information
+     */
+    suspend fun getCurrentUser(): WebState<User> {
+        val response = client.get("${mainUrl}/me") {
+            header("Content-Type", "application/json")
+            header("Accept", "application/json")
+            header("Authorization", getAuthHeader())
+        }
+
+        if (response.status.value >= 400) {
+            return response.body<WebState.Error>()
+        }
+
+        val data = response.body<ApiResource<User>>()
+        return WebState.Success(data.data)
+    }
+
+    /**
+     * Delete the currently authenticated user's account
+     */
+    suspend fun deleteAccount(): WebState<Boolean> {
+        val response = client.delete("${mainUrl}/account") {
+            header("Content-Type", "application/json")
+            header("Accept", "application/json")
+            header("Authorization", getAuthHeader())
+        }
+
+        if (response.status.value >= 400) {
+            return response.body<WebState.Error>()
+        }
+
+        return WebState.Success(true)
+    }
+
     suspend fun getCollectionList(): WebState<List<Collection>> {
         val response = client.get("${mainUrl}/collections") {
             header("Content-Type", "application/json")

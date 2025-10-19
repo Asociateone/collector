@@ -17,6 +17,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.collecter.enums.MainNavigation
 import com.example.collecter.ui.composables.partials.main.MainNavbar
+import com.example.collecter.ui.composables.views.main.AccountView
 import com.example.collecter.ui.composables.views.main.CollectionView
 import com.example.collecter.ui.composables.views.main.DashboardView
 import com.example.collecter.ui.composables.views.main.GameBrowseView
@@ -101,7 +102,29 @@ fun MainNavigation(modifier: Modifier = Modifier, navController: NavHostControll
                 }
                 composable(MainNavigation.More.name) {
                     title.value = MainNavigation.More.name
-                    MoreView(Modifier.fillMaxSize())
+                    MoreView(
+                        modifier = Modifier.fillMaxSize(),
+                        onNavigateToAccount = {
+                            navController.navigate(MainNavigation.Account.name)
+                        },
+                        onLogout = {
+                            // Token will be automatically cleared by AuthRepository
+                            // MainActivity will detect the null token and switch to AuthenticationScaffold
+                        }
+                    )
+                }
+                composable(MainNavigation.Account.name) {
+                    title.value = MainNavigation.Account.name
+                    AccountView(
+                        modifier = Modifier.fillMaxSize(),
+                        onNavigateBack = {
+                            navController.popBackStack()
+                        },
+                        onLogout = {
+                            // Token will be automatically cleared by AuthRepository
+                            // MainActivity will detect the null token and switch to AuthenticationScaffold
+                        }
+                    )
                 }
             }
         }

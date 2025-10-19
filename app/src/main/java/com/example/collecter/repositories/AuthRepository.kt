@@ -35,4 +35,32 @@ class AuthRepository(val http: HTTP, val database: Database, val preferenceData:
 
         return response
     }
+
+    /**
+     * Get the currently authenticated user's information
+     */
+    suspend fun getCurrentUser(): WebState<User> {
+        val response = http.getCurrentUser()
+
+        // Don't update database - getCurrentUser doesn't return token,
+        // and we don't want to overwrite the stored user with empty token
+
+        return response
+    }
+
+    /**
+     * Delete the currently authenticated user's account
+     */
+    suspend fun deleteAccount(): WebState<Boolean> {
+        val response = http.deleteAccount()
+
+        if (response is WebState.Success) {
+            // Clear user data from local database
+            database.userDao().deleteAll()
+            // Clear API key
+            preferenceData.update(DataStoreKeys.API_KEY, "")
+        }
+
+        return response
+    }
 }

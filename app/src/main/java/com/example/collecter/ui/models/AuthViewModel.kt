@@ -41,4 +41,40 @@ class AuthViewModel(private val authRepository: AuthRepository, val dataStore: P
     fun getToken(): Flow<String?> {
         return dataStore.apiKey
     }
+
+    /**
+     * Get current user information
+     */
+    fun getCurrentUser() {
+        _uiState.value = UiState.Loading
+        viewModelScope.launch(Dispatchers.IO) {
+            val result = authRepository.getCurrentUser()
+            _uiState.value = when (result) {
+                is com.example.collecter.enums.WebState.Success -> UiState.Success(result.data)
+                is com.example.collecter.enums.WebState.Error -> UiState.Error(result.message)
+                is com.example.collecter.enums.WebState.Loading -> UiState.Loading
+            }
+        }
+    }
+
+    /**
+     * Delete the current user's account
+     */
+    fun deleteAccount(onSuccess: () -> Unit = {}, onError: (String) -> Unit = {}) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val result = authRepository.deleteAccount()
+            when (result) {
+                is com.example.collecter.enums.WebState.Success -> {
+                    _uiState.value = UiState.Success(null)
+                    onSuccess()
+                }
+                is com.example.collecter.enums.WebState.Error -> {
+                    onError(result.message)
+                }
+                is com.example.collecter.enums.WebState.Loading -> {
+                    // Do nothing, keep current state
+                }
+            }
+        }
+    }
 }

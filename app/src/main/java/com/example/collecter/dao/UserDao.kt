@@ -15,4 +15,7 @@ interface UserDao {
 
     @Query("SELECT * FROM users WHERE token = :token Limit 1")
     fun getUserByToken(token: String): Flow<User>
+
+    @Query("DELETE FROM users")
+    suspend fun deleteAll()
 }

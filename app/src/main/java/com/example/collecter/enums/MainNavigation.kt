@@ -4,4 +4,5 @@ enum class MainNavigation {
     Dashboard,
     GameBrowse,
     More,
+    Account,
 }
