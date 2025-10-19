@@ -190,7 +190,8 @@ fun CollectionScreen(
                         tint = MaterialTheme.colorScheme.onPrimary
                     )
                 }
-            }
+            },
+            contentWindowInsets = WindowInsets(0.dp)
         ) { paddingValues ->
             Column(modifier = Modifier
                 .fillMaxSize()
@@ -226,7 +227,13 @@ fun CollectionScreen(
                     LoadingView(Modifier.fillMaxSize())
                 } else if (filteredGames != null && filteredGames.isNotEmpty()) {
                     LazyColumn(
-                        contentPadding = PaddingValues(16.dp),
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(
+                            start = 16.dp,
+                            end = 16.dp,
+                            top = 16.dp,
+                            bottom = 80.dp
+                        ),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         items(
