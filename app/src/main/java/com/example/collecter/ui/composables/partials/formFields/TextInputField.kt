@@ -48,21 +48,21 @@ fun TextInputField(
     val borderColor = if (isFocused) Color.LightGray else Color.Transparent
     val borderWidth = if (isFocused) 1.dp else 0.dp
 
-    Column(modifier = modifier.fillMaxWidth()) {
+    Column(modifier = modifier) {
         BasicTextField(
             value = value,
             onValueChange = onValueChange,
             interactionSource = interactionSource,
             enabled = !isDisabled,
-            modifier = Modifier // Removed fillMaxWidth from here
+            modifier = Modifier
+                .fillMaxWidth()
                 .padding(10.dp)
                 .border(
                     width = borderWidth,
                     color = borderColor,
                     shape = ShapeDefaults.Medium
                 )
-                .padding(14.dp)
-                .fillMaxWidth(), // Added fillMaxWidth here to take the width of the parent Column
+                .padding(14.dp),
             singleLine = true,
             textStyle = TextStyle(
                 fontSize = 28.sp,

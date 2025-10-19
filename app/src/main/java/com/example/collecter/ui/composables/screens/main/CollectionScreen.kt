@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -170,7 +169,8 @@ fun CollectionScreen(
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.surface,
                         titleContentColor = MaterialTheme.colorScheme.onSurface
-                    )
+                    ),
+                    windowInsets = WindowInsets(0.dp, 0.dp, 0.dp, 0.dp)
                 )
             },
             floatingActionButton = {
@@ -190,7 +190,8 @@ fun CollectionScreen(
                         tint = MaterialTheme.colorScheme.onPrimary
                     )
                 }
-            }
+            },
+            contentWindowInsets = WindowInsets(0.dp, 0.dp, 0.dp, 0.dp)
         ) { paddingValues ->
             Column(modifier = Modifier
                 .fillMaxSize()
