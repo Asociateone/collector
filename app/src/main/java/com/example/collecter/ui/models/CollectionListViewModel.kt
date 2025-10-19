@@ -1,6 +1,5 @@
 package com.example.collecter.ui.models
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.collecter.dataObjects.Collection
@@ -14,16 +13,31 @@ import kotlinx.coroutines.launch
 class CollectionListViewModel (val collectionRepository: CollectionRepository) : ViewModel ()
 {
     private val _uiState = MutableStateFlow<UiState<List<Collection>>>(UiState.Loading)
+    private val _isRefreshing = MutableStateFlow(false)
 
     val uiState: StateFlow<UiState<List<Collection>>> = _uiState
+    val isRefreshing: StateFlow<Boolean> = _isRefreshing
+
     init {
-        getCollectionList()
+        viewModelScope.launch(Dispatchers.IO) {
+            collectionRepository.getCollectionListFlow().collect { collections ->
+                _uiState.value = UiState.Success(collections)
+            }
+        }
+        syncCollections()
     }
 
-    fun getCollectionList(): Unit {
-        _uiState.value = UiState.Loading
+    fun syncCollections(): Unit {
         viewModelScope.launch(Dispatchers.IO) {
-            _uiState.value = collectionRepository.getCollections()
+            collectionRepository.syncCollections()
+        }
+    }
+
+    fun refreshCollections(): Unit {
+        viewModelScope.launch(Dispatchers.IO) {
+            _isRefreshing.value = true
+            collectionRepository.syncCollections()
+            _isRefreshing.value = false
         }
     }
 }

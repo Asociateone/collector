@@ -3,6 +3,7 @@ package com.example.collecter.repositories
 import com.example.collecter.dataObjects.User
 import com.example.collecter.enums.DataStoreKeys
 import com.example.collecter.enums.UiState
+import com.example.collecter.enums.WebState
 import com.example.collecter.services.Database
 import com.example.collecter.services.HTTP
 import com.example.collecter.services.PreferenceDataStore
@@ -12,11 +13,11 @@ class AuthRepository(val http: HTTP, val database: Database, val preferenceData:
     /**
      * @param email
      */
-    suspend fun signIn(email: String, password: String): UiState<User>
+    suspend fun signIn(email: String, password: String): WebState<User>
     {
         val data =  http.signIn(email, password)
 
-        if (data is UiState.Success) {
+        if (data is WebState.Success) {
             database.userDao().insertUser(data.data)
             preferenceData.update(DataStoreKeys.API_KEY, data.data.token)
         }
@@ -24,10 +25,10 @@ class AuthRepository(val http: HTTP, val database: Database, val preferenceData:
         return data
     }
 
-    suspend fun signUp(email: String, username: String, password: String, passwordConfirmation: String): UiState<User> {
+    suspend fun signUp(email: String, username: String, password: String, passwordConfirmation: String): WebState<User> {
         val response = http.signUp(email, username, password, passwordConfirmation)
 
-        if (response is UiState.Success) {
+        if (response is WebState.Success) {
             database.userDao().insertUser(response.data)
             preferenceData.update(DataStoreKeys.API_KEY, response.data.token)
         }

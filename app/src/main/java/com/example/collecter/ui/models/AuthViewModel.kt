@@ -24,14 +24,14 @@ class AuthViewModel(private val authRepository: AuthRepository, val dataStore: P
         _uiState.value = UiState.Loading
 
         viewModelScope.launch(Dispatchers.IO) {
-            _uiState.value  = authRepository.signIn(email, password)
+//            _uiState.value  = authRepository.signIn(email, password)
         }
     }
 
     fun signUp(email: String, username: String, password: String, passwordConfirmation: String) {
         _uiState.value = UiState.Loading
         viewModelScope.launch(Dispatchers.IO) {
-            _uiState.value = authRepository.signUp(email, username, password, passwordConfirmation)
+//            _uiState.value = authRepository.signUp(email, username, password, passwordConfirmation)
         }
     }
 

@@ -1,7 +1,7 @@
 package com.example.collecter
 
 import android.app.Application
-import androidx.room.Room // Toevoegen voor Room
+import androidx.room.Room
 import com.example.collecter.repositories.AuthRepository
 import com.example.collecter.repositories.CollectionRepository
 import com.example.collecter.repositories.GameRepository

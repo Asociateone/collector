@@ -167,7 +167,6 @@ fun CollectionView(
             }
         }
         is UiState.Error -> {
-            // TODO: Handle error state
         }
     }
 }

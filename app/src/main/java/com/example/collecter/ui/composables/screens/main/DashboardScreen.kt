@@ -20,12 +20,14 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,11 +45,14 @@ import com.example.collecter.ui.composables.partials.Button
 import com.example.collecter.ui.composables.partials.formFields.TextInputField
 import com.example.collecter.ui.composables.views.auth.LoadingView
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(
     modifier: Modifier = Modifier,
     collectionList: List<Collection>,
     isLoading: Boolean,
+    isRefreshing: Boolean = false,
+    onRefresh: () -> Unit = {},
     isCreating: Boolean,
     isCreatingLoading: Boolean = false,
     searchQuery: String = "",
@@ -101,21 +106,24 @@ fun DashboardScreen(
                 )
             )
 
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                modifier = Modifier.padding(8.dp),
-                contentPadding = PaddingValues(8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+            PullToRefreshBox(
+                isRefreshing = isRefreshing,
+                onRefresh = onRefresh,
+                modifier = Modifier.fillMaxSize()
             ) {
-                items(collectionList) { collection ->
-                    ListItem(
-                        collectionList = collection,
-                        onClick = { goToCollection(collection.id) }
-                    )
-                }
-                item {
-                    AddListItem(Modifier.clickable(onClick = createCollection))
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    modifier = Modifier.padding(8.dp),
+                    contentPadding = PaddingValues(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(collectionList) { collection ->
+                        ListItem(collectionList = collection, modifier = Modifier.clickable(onClick = { goToCollection(collection.id) }))
+                    }
+                    item {
+                        AddListItem(Modifier.clickable(onClick = createCollection))
+                    }
                 }
             }
         }

@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.collecter.dataObjects.Collection
 import com.example.collecter.dataObjects.Game
 import com.example.collecter.enums.UiState
+import com.example.collecter.enums.WebState
 import com.example.collecter.repositories.CollectionRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -21,10 +22,12 @@ class CollectionViewModel (val collectionRepository: CollectionRepository) : Vie
     private val _gamesUiState = MutableStateFlow<UiState<List<Game>>>(UiState.Loading)
     val gamesUiState: StateFlow<UiState<List<Game>>> = _gamesUiState
 
-    fun getCollection(id: Int): Unit {
+    fun getCollection(id: Int) {
         _uiState.value = UiState.Loading
         viewModelScope.launch(Dispatchers.IO) {
-            _uiState.value = collectionRepository.getCollection(id)
+            collectionRepository.getCollectionFlow(id).collect { collection ->
+                _uiState.value = UiState.Success(collection)
+            }
         }
     }
 
